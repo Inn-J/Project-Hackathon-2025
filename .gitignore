@@ -13,3 +13,8 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+#backend
+backend/node_modules/
+backend/.env
+serviceAccountKey.json
