@@ -1,0 +1,115 @@
+/* src/pages/SearchPage.css */
+
+.search-content-wrapper {
+  max-width: 1280px; /* (max-w-7xl) */
+  margin: 0 auto;
+  padding: 32px 16px;
+  display: flex;
+}
+
+/* Sidebar */
+.search-sidebar {
+  width: 25%; /* (w-1/4) */
+  padding-right: 32px;
+  box-sizing: border-box;
+}
+
+.filter-box {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+}
+
+.filter-title {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group-title {
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.filter-input-text {
+  width: 100%;
+  border: 1px solid #D1D5DB; /* (สีเทา 300) */
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.filter-difficulty-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filter-difficulty-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #D1D5DB;
+  background: white;
+  cursor: pointer;
+}
+.filter-difficulty-button:hover {
+  background-color: #F3F4F6;
+}
+
+.filter-checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.filter-checkbox {
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+/* Main Content */
+.search-results-main {
+  width: 75%; /* (w-3/4) */
+}
+
+.search-results-title {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* (grid-cols-3) */
+  gap: 24px;
+}
+
+/* (ปรับ CourseCard ให้ยืดเต็ม Grid) */
+.search-results-grid .course-card {
+  width: 100%;
+  margin: 0;
+}
+
+.search-load-more {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.load-more-button {
+  background-color: #E5E7EB; /* (สีเทา 200) */
+  color: #374151; /* (สีเทา 700) */
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.load-more-button:hover {
+  background-color: #D1D5DB; /* (สีเทา 300) */
+}

@@ -1,0 +1,191 @@
+/* src/components/ReviewCard.css */
+
+.review-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.review-card-content {
+  padding: 24px;
+}
+
+/* Header */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.review-author-info {
+  display: flex;
+  align-items: center;
+}
+
+.review-author-avatar {
+  height: 48px;
+  width: 48px;
+  border-radius: 9999px; /* (วงกลม) */
+  background-color: #E0E7FF; /* (สีม่วง 200) */
+  color: #4F46E5; /* (สีม่วง 600) */
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-author-details {
+  margin-left: 16px;
+}
+
+.review-author-name {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: #111827; /* (สีเทา 900) */
+  display: flex;
+  align-items: center;
+}
+
+.review-verified-badge {
+  margin-left: 8px;
+  background-color: #D1FAE5; /* (สีเขียว 100) */
+  color: #065F46; /* (สีเขียว 700) */
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.review-author-grade {
+  font-size: 0.875rem; /* 14px */
+  color: #6B7280; /* (สีเทา 500) */
+}
+.review-author-grade .grade-value {
+  font-weight: 700;
+  color: #111827; /* (สีเทา 800) */
+}
+
+.review-options-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9CA3AF; /* (สีเทา 400) */
+}
+.review-options-button:hover {
+  color: #4B5563; /* (สีเทา 600) */
+}
+
+/* Tags */
+.review-tags {
+  display: flex;
+  margin-top: 16px;
+}
+
+.review-tag-item {
+  background-color: #E0E7FF; /* (สีม่วง 100) */
+  color: #4F46E5; /* (สีม่วง 700) */
+  font-size: 0.75rem; /* 12px */
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin-right: 8px;
+}
+
+/* Ratings */
+.review-ratings-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.rating-group {
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+}
+
+.rating-label {
+  font-size: 0.875rem; /* 14px */
+  color: #4B5563; /* (สีเทา 600) */
+  margin-right: 8px;
+}
+
+.rating-icon {
+  height: 20px;
+  width: 20px;
+  color: #D1D5DB; /* (สีเทา 300 - สีจาง) */
+}
+.rating-icon.rating-yellow {
+  color: #FBBF24; /* (สีเหลือง 400) */
+}
+.rating-icon.rating-orange {
+  color: #F97316; /* (สีส้ม 500) */
+}
+.rating-icon.rating-blue {
+  color: #3B82F6; /* (สีฟ้า 500) */
+}
+
+/* Content */
+.review-content-body {
+  margin-top: 20px;
+}
+
+.content-section {
+  margin-bottom: 12px;
+}
+
+.content-title {
+  font-weight: 600;
+  color: #1F2937; /* (สีเทา 800) */
+}
+
+.content-text {
+  font-size: 0.875rem; /* 14px */
+  color: #4B5563; /* (สีเทา 600) */
+  margin-top: 4px;
+}
+
+/* Footer */
+.review-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  border-top: 1px solid #E5E7EB; /* (สีเทา 200) */
+  padding-top: 16px;
+}
+
+.review-footer-actions {
+  display: flex;
+}
+
+.review-footer-button {
+  background-color: #E5E7EB; /* (สีเทา 200) */
+  color: #374151; /* (สีเทา 700) */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+}
+.review-footer-button:hover {
+  background-color: #D1D5DB; /* (สีเทา 300) */
+}
+
+.review-report-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6B7280; /* (สีเทา 500) */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+}
+.review-report-button:hover {
+  color: #EF4444; /* (สีแดง 600) */
+}

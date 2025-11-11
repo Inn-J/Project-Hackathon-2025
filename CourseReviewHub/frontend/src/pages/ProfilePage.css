@@ -1,0 +1,225 @@
+/* src/pages/ProfilePage.css */
+
+.profile-page-container {
+  background-color: #F9FAFB;
+  min-height: 100vh;
+}
+
+/* Header */
+.profile-header {
+  background: linear-gradient(to right, #6D28D9, #4F46E5); /* (ไล่สีม่วง-น้ำเงิน) */
+  color: white;
+  padding: 32px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header-info {
+  display: flex;
+  align-items: center;
+}
+
+.profile-avatar {
+  height: 80px;
+  width: 80px;
+  border-radius: 9999px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
+  color: #6D28D9;
+}
+
+.profile-details {
+  margin-left: 24px;
+}
+
+.profile-name {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 700;
+  margin: 0;
+}
+
+.profile-meta {
+  color: #C7D2FE; /* (สีม่วง 200) */
+  margin: 4px 0 0 0;
+}
+
+/* Stats */
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.profile-stat-box {
+  background-color: rgba(109, 40, 217, 0.5); /* (สีม่วง 500 opacity 50%) */
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.875rem; /* 14px */
+  color: #E0E7FF; /* (สีม่วง 200) */
+}
+
+/* Content */
+.profile-content-wrapper {
+  max-width: 1280px; /* (max-w-7xl) */
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+/* Tabs */
+.profile-tabs {
+  display: flex;
+  border-bottom: 2px solid #E5E7EB; /* (สีเทา 200) */
+  margin-bottom: 24px;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  color: #6B7280; /* (สีเทา 500) */
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 4px solid transparent;
+}
+.tab-button.active {
+  color: #6D28D9; /* (สีม่วง 600) */
+  border-bottom-color: #6D28D9;
+}
+
+/* Tab Content */
+.tab-content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.badge-section {
+  grid-column: span 2 / span 2; /* (md:col-span-2) */
+}
+
+.activity-section {
+  grid-column: span 1 / span 1; /* (md:col-span-1) */
+}
+
+.section-title {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.section-description {
+  color: #4B5563; /* (สีเทา 600) */
+  margin-bottom: 24px;
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.badge-card {
+  padding: 20px;
+  border-radius: 8px;
+}
+.badge-card.badge-unlocked {
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+.badge-card.badge-soon {
+  background-color: #F3F4F6; /* (สีเทา 100) */
+  opacity: 0.6;
+}
+
+.badge-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.badge-title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  margin: 0;
+}
+
+.badge-description {
+  font-size: 0.875rem; /* 14px */
+  color: #6B7280;
+  margin: 0 0 12px 0;
+}
+
+.badge-status {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+.badge-status.unlocked {
+  background-color: #D1FAE5; /* (สีเขียว 100) */
+  color: #065F46; /* (สีเขียว 700) */
+}
+.badge-status.soon {
+  background-color: #E5E7EB; /* (สีเทา 200) */
+  color: #6B7280; /* (สีเทา 500) */
+}
+
+/* Activity */
+.activity-feed {
+  background-color: #F3F4F6; /* (สีเทา 100) */
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.activity-icon-wrapper {
+  background-color: #E0E7FF; /* (สีม่วง 100) */
+  padding: 8px;
+  border-radius: 9999px;
+  margin-right: 12px;
+  display: flex;
+}
+
+.activity-text {
+  font-size: 0.875rem; /* 14px */
+  color: #374151; /* (สีเทา 700) */
+  margin: 0;
+}
+
+.activity-time {
+  font-size: 0.75rem; /* 12px */
+  color: #6B7280; /* (สีเทา 500) */
+  margin: 0;
+}
+
+/* Placeholder for other tabs */
+.tab-placeholder {
+  text-align: center;
+  padding: 40px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}

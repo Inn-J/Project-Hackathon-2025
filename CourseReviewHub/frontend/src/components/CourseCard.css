@@ -1,0 +1,88 @@
+/* src/components/CourseCard.css */
+.course-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
+  width: 320px;
+  margin: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.course-card-content {
+  padding: 20px;
+}
+
+.course-code {
+  color: #6B7280;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+}
+
+.course-title {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: black;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.course-title:hover {
+  text-decoration: underline;
+}
+
+.course-difficulty {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.difficulty-label {
+  color: #4B5563;
+  margin-right: 8px;
+}
+
+.difficulty-fire-icon {
+  height: 20px;
+  width: 20px;
+  color: #D1D5DB; /* (สีเทา 300 - สีจาง) */
+}
+.difficulty-fire-icon.active {
+  color: #F97316; /* (สีส้ม 500 - สีเข้ม) */
+}
+
+.course-reviews {
+  margin-top: 12px;
+  color: #6B7280;
+  font-size: 0.875rem; /* 14px */
+}
+
+.course-button {
+  margin-top: 16px;
+  width: 100%;
+  background-color: #2DD4BF; /* (สีเขียว Teal) */
+  color: white;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.course-button:hover {
+  background-color: #14B8A6; /* (สีเขียวเข้มขึ้น) */
+}
+
+
+
+
+
+
+
+
+
