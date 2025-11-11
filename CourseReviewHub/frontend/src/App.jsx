@@ -1,3 +1,4 @@
+// App.jsx
 import { useState } from 'react';
 import { Header } from './components/Header';
 import { HomePage } from './components/HomePage';
@@ -6,6 +7,7 @@ import { CourseDetailPage } from './components/CourseDetailPage';
 import { WriteGuidanceModal } from './components/WriteGuidanceModal';
 import { MyWishlistPage } from './components/MyWishlistPage';
 import { UserProfilePage } from './components/UserProfilePage';
+
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');

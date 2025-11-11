@@ -1,19 +1,18 @@
+// src/components/Header.jsx
 import { Search, Bookmark, User } from 'lucide-react';
 
-interface HeaderProps {
-  onSearchChange?: (value: string) => void;
-  onWishlistClick?: () => void;
-  onProfileClick?: () => void;
-  onLogoClick?: () => void;
-}
-
-export function Header({ onSearchChange, onWishlistClick, onProfileClick, onLogoClick }: HeaderProps) {
+export default function Header({
+  onSearchChange,
+  onWishlistClick,
+  onProfileClick,
+  onLogoClick,
+}) {
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center gap-6">
           {/* Logo */}
-          <button 
+          <button
             onClick={onLogoClick}
             className="flex-shrink-0 hover:opacity-80 transition-opacity"
           >
@@ -29,7 +28,7 @@ export function Header({ onSearchChange, onWishlistClick, onProfileClick, onLogo
               <input
                 type="text"
                 placeholder="ค้นหาวิชาที่ใช่…"
-                onChange={(e) => onSearchChange?.(e.target.value)}
+                onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C5CE7] focus:border-transparent transition-all"
               />
             </div>
