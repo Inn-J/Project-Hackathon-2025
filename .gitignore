@@ -17,4 +17,4 @@ Thumbs.db
 #backend
 backend/node_modules/
 backend/.env
-backend/firebase/serviceAccountKey.json
+serviceAccountKey.json
