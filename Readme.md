@@ -30,7 +30,6 @@
 * **Backend:** Node.js (Express.js)
 * **Database:** Supabase (PostgreSQL)
 * **Authentication:** Firebase Authentication
-* **Deployment:** Vercel (Frontend), Render (Backend)
 
 ---
 
@@ -46,9 +45,6 @@
 
 ## 🚀 Getting Started (วิธีรันโปรเจกต์)
 
-### Prerequisites
-* Node.js (v18+)
-* npm หรือ yarn
 
 ### Installation
 
