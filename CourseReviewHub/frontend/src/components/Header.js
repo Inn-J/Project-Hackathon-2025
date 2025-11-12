@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
 import { SearchIcon, BookmarkIcon, UserCircleIcon, UserIcon, LogoutIcon } from '@heroicons/react/solid';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
-import { signOut } from 'firebase/auth'; 
+import { useAuth } from '../context/AuthContext';
+import { signOut } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig'; 
-import './Header.css'; // ⬅️ 1. ต้องมีบรรทัดนี้
+import './Header.css';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // ดึงข้อมูล User ปัจจุบัน (มี Role)
+  const { currentUser } = useAuth(); // ดึงข้อมูล User ปัจจุบัน
 
+  // ----------------------------------------------------
+  // ✅ Logic แก้ไข: ดึงตัวแรกของ Email ก่อนเครื่องหมาย @
+  // ----------------------------------------------------
+  const emailPrefix = currentUser?.email?.split('@')[0] || 'Guest';
+  const profileInitial = emailPrefix.charAt(0).toUpperCase(); 
+  
+  const usernameDisplay = currentUser?.username || emailPrefix; 
+  const roleDisplay = currentUser?.role || 'N/A';
+  // ----------------------------------------------------
+  
   const handleLogout = async () => {
     try {
       await signOut(auth); // สั่ง Firebase Logout
-      // Context จะจัดการ setCurrentUser(null) ให้เองอัตโนมัติ
       setIsMenuOpen(false);
     } catch (error) {
       console.error("Logout Error:", error);
       alert("ไม่สามารถ Logout ได้");
     }
   };
-
-  const usernameInitial = currentUser?.username?.charAt(0) || 'G';
-  const usernameDisplay = currentUser?.username || 'Guest';
-  const roleDisplay = currentUser?.role || 'N/A';
 
   return (
     <div className="header-container">
@@ -51,7 +56,8 @@ export default function Header() {
                 className="header-icon-button profile-button" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-                <span className="profile-initial">{usernameInitial}</span>
+                {/* ⬇️ ใช้ตัวแปรที่แก้ไขแล้ว ⬇️ */}
+                <span className="profile-initial">{profileInitial}</span>
             </button>
 
             {isMenuOpen && (

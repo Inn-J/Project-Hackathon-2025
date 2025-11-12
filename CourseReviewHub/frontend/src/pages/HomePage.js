@@ -83,27 +83,68 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* 3. ส่วนรีวิวล่าสุด (การ์ดใหญ่) */}
-        <h3 className="home-section-title" style={{ marginTop: '40px' }}>รีวิวล่าสุด ({latestReviews.length} รายการ)</h3>
-        {latestReviews.length > 0 ? (
-            <ReviewCard review={{ // ส่งข้อมูลรีวิวแรกไปแสดงผล
-                author: latestReviews[0].users.username,
-                grade: latestReviews[0].grade,
-                tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
-                ratings: {
-                    satisfaction: latestReviews[0].rating_satisfaction || 3,
-                    difficulty: latestReviews[0].rating_difficulty || 3,
-                    workload: latestReviews[0].rating_workload || 3,
-                },
-                content: {
-                    prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
-                    prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
-                    tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
-                }
-            }} />
-        ) : (
-            <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
-        )}
+       {/* 3. ส่วนรีวิวล่าสุด (การ์ดใหญ่) */}
+<h3 className="home-section-title" style={{ marginTop: '40px' }}>
+  รีวิวล่าสุด ({latestReviews.length} รายการ)
+</h3>
+
+{latestReviews.length > 0 ? (
+  <>
+    {/* การ์ดที่ 1 */}
+    <ReviewCard review={{
+      author: latestReviews[0].users.username,
+      grade: latestReviews[0].grade,
+      tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
+      ratings: {
+        satisfaction: latestReviews[0].rating_satisfaction || 3,
+        difficulty: latestReviews[0].rating_difficulty || 3,
+        workload: latestReviews[0].rating_workload || 3,
+      },
+      content: {
+        prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
+        prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
+        tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
+      }
+    }} />
+
+    {/* การ์ดที่ 2 */}
+    <ReviewCard review={{
+      author: latestReviews[0].users.username,
+      grade: latestReviews[0].grade,
+      tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
+      ratings: {
+        satisfaction: latestReviews[0].rating_satisfaction || 3,
+        difficulty: latestReviews[0].rating_difficulty || 3,
+        workload: latestReviews[0].rating_workload || 3,
+      },
+      content: {
+        prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
+        prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
+        tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
+      }
+    }} />
+
+    {/* การ์ดที่ 3 */}
+    <ReviewCard review={{
+      author: latestReviews[0].users.username,
+      grade: latestReviews[0].grade,
+      tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
+      ratings: {
+        satisfaction: latestReviews[0].rating_satisfaction || 3,
+        difficulty: latestReviews[0].rating_difficulty || 3,
+        workload: latestReviews[0].rating_workload || 3,
+      },
+      content: {
+        prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
+        prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
+        tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
+      }
+    }} />
+  </>
+) : (
+  <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
+)}
+
       </div>
     </div>
   );
