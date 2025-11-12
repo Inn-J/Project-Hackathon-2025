@@ -48,15 +48,18 @@
 .filter-difficulty-buttons {
   display: flex;
   justify-content: space-between;
+  flex-direction: column;
+  
 }
 
 .filter-difficulty-button {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 4px;
   border: 1px solid #D1D5DB;
   background: white;
   cursor: pointer;
+  margin-bottom: 8px;
 }
 .filter-difficulty-button:hover {
   background-color: #F3F4F6;
@@ -112,4 +115,84 @@
 }
 .load-more-button:hover {
   background-color: #D1D5DB; /* (สีเทา 300) */
+}
+
+.sort-buttons {
+  display: flex;
+  gap: 10px; /* เว้นระยะห่างระหว่างปุ่ม */
+  flex-wrap: wrap; /* ปรับให้เล็กลงบรรทัดใหม่ได้ */
+}
+
+.sort-button {
+  background-color: #F3F4F6;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sort-button:hover {
+  background-color: #E5E7EB; /* สีเข้มขึ้นเมื่อ hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.sort-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.filter-difficulty-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-difficulty-button {
+  background-color: #F3F4F6;
+  border: none;
+  border-radius: 20%;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.filter-difficulty-button:hover {
+  background-color: #E5E7EB;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.filter-difficulty-button.active {
+  background-color: #FACC15; /* สีเหลืองทองสำหรับ active */
+  color: #fff;
+}
+
+/* Checkbox ปริมาณงาน */
+.filter-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.filter-checkbox-label:hover {
+  background-color: #F3F4F6;
+}
+
+.filter-checkbox {
+  accent-color: #3B82F6; /* เปลี่ยนสี checkbox เป็นฟ้า */
 }

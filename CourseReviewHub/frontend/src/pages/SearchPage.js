@@ -41,36 +41,40 @@ export default function SearchPage() {
             <h3 className="filter-title">ตัวกรอง</h3>
             
             <div className="filter-group">
-              <h4 className="filter-group-title">เรียงตาม</h4>
-              <input type="text" placeholder="คะแนนสูงสุด" className="filter-input-text" />
-            </div>
+  <h4 className="filter-group-title">เรียงตาม</h4>
+  <div className="sort-buttons">
+    <button className="sort-button">ยอดรีวิวมากสุด</button>
+    <button className="sort-button">ความยากน้อยสุด</button>
+    <button className="sort-button">ปริมาณงานน้อยสุด</button>
+  </div>
+</div>
             
             <div className="filter-group">
-              <h4 className="filter-group-title">ระดับความยาก</h4>
-              <div className="filter-difficulty-buttons">
-                <button className="filter-difficulty-button">1 🔥</button>
-                <button className="filter-difficulty-button">2 🔥</button>
-                <button className="filter-difficulty-button">3 🔥</button>
-                <button className="filter-difficulty-button">4 🔥</button>
-                <button className="filter-difficulty-button">5 🔥</button>
-              </div>
-            </div>
+  <h4 className="filter-group-title">ระดับความยาก</h4>
+  <div className="filter-difficulty-buttons">
+    <button className="filter-difficulty-button">1 🔥</button>
+    <button className="filter-difficulty-button">2 🔥</button>
+    <button className="filter-difficulty-button">3 🔥</button>
+    <button className="filter-difficulty-button">4 🔥</button>
+    <button className="filter-difficulty-button">5 🔥</button>
+  </div>
+</div>
 
-            <div className="filter-group">
-              <h4 className="filter-group-title">ปริมาณงาน</h4>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox"/>
-                <span>น้อย</span>
-              </label>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox"/>
-                <span>ปานกลาง</span>
-              </label>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox"/>
-                <span>มาก</span>
-              </label>
-            </div>
+<div className="filter-group">
+  <h4 className="filter-group-title">ปริมาณงาน</h4>
+  <label className="filter-checkbox-label">
+    <input type="checkbox" className="filter-checkbox"/>
+    <span>น้อย</span>
+  </label>
+  <label className="filter-checkbox-label">
+    <input type="checkbox" className="filter-checkbox"/>
+    <span>ปานกลาง</span>
+  </label>
+  <label className="filter-checkbox-label">
+    <input type="checkbox" className="filter-checkbox"/>
+    <span>มาก</span>
+  </label>
+</div>
           </div>
         </aside>
 

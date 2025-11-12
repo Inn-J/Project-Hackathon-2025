@@ -155,3 +155,17 @@ export const deleteCourse = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// ----------------------------------------------------------------
+// GET /api/courses/stats (READ - ดึงรายวิชาพร้อมสถิติรีวิว)
+// ----------------------------------------------------------------
+export const getAllCoursesWithStats = async (req, res) => {
+  try {
+    const { data, error } = await supabase.rpc('get_courses_with_stats');
+    if (error) throw error;
+
+    res.status(200).json({ courses: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
