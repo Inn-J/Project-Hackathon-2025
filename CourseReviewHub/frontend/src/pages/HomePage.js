@@ -7,12 +7,26 @@ import './HomePage.css';
 import { useAuth } from '../context/AuthContext'; 
 import apiClient from '../services/axiosConfig'; 
 
+
+// เพิ่ม import นี้
+import { useNavigate } from 'react-router-dom';
+
+
 export default function HomePage() {
   const { currentUser } = useAuth(); 
   const [courses, setCourses] = useState([]);
+    const navigate = useNavigate();                // 👈
+  const [searchTerm, setSearchTerm] = useState(''); //
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+    // ฟังก์ชันพาไปหน้า Search
+  const goSearch = () => {
+    const q = searchTerm.trim();
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+    else navigate(`/search`);
+  };
 
   useEffect(() => {
     // ฟังก์ชันดึงข้อมูลจะทำงานต่อเมื่อ User Logged In แล้วเท่านั้น
@@ -55,14 +69,33 @@ export default function HomePage() {
       <Header />
       
       {/* 1. ส่วน Banner ค้นหา (สีม่วง) */}
-      <div className="home-banner">
-        <h2 className="home-banner-title">ค้นหาวิชาที่สนใจ</h2>
-        <p className="home-status-message">ยินดีต้อนรับ, {currentUser?.username} ({currentUser?.faculty})</p>
-        <div className="home-search-wrapper">
-          <input type="text" placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..." className="home-search-input" />
-          <SearchIcon className="home-search-icon" />
-        </div>
-      </div>
+     <div className="home-banner">
+  <h2 className="home-banner-title">ค้นหาวิชาที่สนใจ</h2>
+  <p className="home-status-message">
+    ยินดีต้อนรับ, {currentUser?.username} ({currentUser?.faculty})
+  </p>
+
+  {/* ✅ ฟอร์มค้นหาแบบกด Enter หรือคลิกไอคอนแล้วไปหน้า /search?q=... */}
+  <form
+    className="home-search-wrapper"
+    onSubmit={(e) => {
+      e.preventDefault();
+      goSearch();
+    }}
+  >
+    <input
+      type="text"
+      placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..."
+      className="home-search-input"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button type="submit" className="home-search-button" aria-label="ค้นหา">
+      <SearchIcon className="home-search-icon" />
+    </button>
+  </form>
+</div>
+
 
       <div className="home-content-wrapper">
         {/* 2. ส่วนวิชาแนะนำ (Horizontal Scroll) */}
@@ -76,7 +109,7 @@ export default function HomePage() {
                 code: course.course_code, 
                 title: course.name_th,
                 // ข้อมูลความยาก/รีวิว จำลองค่าไปก่อน
-                difficulty: 3, 
+                difficulty: 4, 
                 reviewCount: 45 
               }} 
             />
@@ -109,37 +142,39 @@ export default function HomePage() {
 
     {/* การ์ดที่ 2 */}
     <ReviewCard review={{
-      author: latestReviews[0].users.username,
-      grade: latestReviews[0].grade,
-      tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
+      author: latestReviews[1].users.username,
+      grade: latestReviews[1].grade,
+      tags: latestReviews[1].tags || ['#ข้อมูลจากระบบ'],
       ratings: {
-        satisfaction: latestReviews[0].rating_satisfaction || 3,
-        difficulty: latestReviews[0].rating_difficulty || 3,
-        workload: latestReviews[0].rating_workload || 3,
+        satisfaction: latestReviews[1].rating_satisfaction || 3,
+        difficulty: latestReviews[1].rating_difficulty || 3,
+        workload: latestReviews[1].rating_workload || 3,
       },
       content: {
-        prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
-        prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
-        tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
+        prerequisite: latestReviews[1].content_prerequisite || 'ไม่มีข้อมูล',
+        prosCons: latestReviews[1].content_pros_cons || 'ไม่มีข้อมูล',
+        tips: latestReviews[1].content_tips || 'ไม่มีเคล็ดลับ',
       }
     }} />
 
     {/* การ์ดที่ 3 */}
     <ReviewCard review={{
-      author: latestReviews[0].users.username,
-      grade: latestReviews[0].grade,
-      tags: latestReviews[0].tags || ['#ข้อมูลจากระบบ'],
+      author: latestReviews[1].users.username,
+      grade: latestReviews[1].grade,
+      tags: latestReviews[1].tags || ['#ข้อมูลจากระบบ'],
       ratings: {
-        satisfaction: latestReviews[0].rating_satisfaction || 3,
-        difficulty: latestReviews[0].rating_difficulty || 3,
-        workload: latestReviews[0].rating_workload || 3,
+        satisfaction: latestReviews[1].rating_satisfaction || 3,
+        difficulty: latestReviews[1].rating_difficulty || 3,
+        workload: latestReviews[1].rating_workload || 3,
       },
       content: {
-        prerequisite: latestReviews[0].content_prerequisite || 'ไม่มีข้อมูล',
-        prosCons: latestReviews[0].content_pros_cons || 'ไม่มีข้อมูล',
-        tips: latestReviews[0].content_tips || 'ไม่มีเคล็ดลับ',
+        prerequisite: latestReviews[1].content_prerequisite || 'ไม่มีข้อมูล',
+        prosCons: latestReviews[1].content_pros_cons || 'ไม่มีข้อมูล',
+        tips: latestReviews[1].content_tips || 'ไม่มีเคล็ดลับ',
       }
     }} />
+
+    
   </>
 ) : (
   <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
@@ -148,4 +183,5 @@ export default function HomePage() {
       </div>
     </div>
   );
+
 }

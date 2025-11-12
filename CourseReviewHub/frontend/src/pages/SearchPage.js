@@ -1,7 +1,11 @@
 import React from 'react';
 import Header from '../components/Header';
 import CourseCard from '../components/CourseCard';
+import { useLocation } from 'react-router-dom'; 
 import './SearchPage.css'; // Import CSS
+
+
+
 
 // Mock Data
 const mockCourses = [
@@ -14,6 +18,18 @@ const mockCourses = [
 ];
 
 export default function SearchPage() {
+  const location = useLocation();                                // 👈
+  const params = new URLSearchParams(location.search);           // 👈
+  const q = (params.get('q') || '').trim();                      // 👈
+
+  // ตัวอย่าง filter แบบง่าย
+  const results = q
+    ? mockCourses.filter(
+        c =>
+          c.code.toLowerCase().includes(q.toLowerCase()) ||
+          c.title.toLowerCase().includes(q.toLowerCase())
+      )
+    : mockCourses;
   return (
     <div className="searchpage-container">
       <Header />
@@ -59,7 +75,10 @@ export default function SearchPage() {
         </aside>
 
         <main className="search-results-main">
-          <h2 className="search-results-title">ผลการค้นหา: "960" (พบ 8 รายวิชา)</h2>
+          <h2 className="search-results-title">
+  {q ? `ผลการค้นหา: "${q}" (พบ ${results.length} รายวิชา)` : `รายวิชาทั้งหมด (${results.length} รายวิชา)`}
+</h2>
+
           <div className="search-results-grid">
             {mockCourses.map(course => (
               <CourseCard key={course.id} course={course} />

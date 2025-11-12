@@ -13,6 +13,21 @@
     color: #EF4444; /* แดง */
 }
 
+/*aa*/
+.home-search-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.home-search-button:hover .home-search-icon {
+  color: #6D28D9;
+}
+
 /* 1. ส่วน Banner (สีม่วง) */
 .home-banner {
   background-color: #6D28D9; /* (สีม่วง 600) */

@@ -46,6 +46,7 @@ function AppRoutes() {
       />
     </Routes>
   );
+  <Route path="/search" element={<SearchPage />} /> 
 }
 
 export default function App() {
