@@ -1,4 +1,3 @@
-
 /* src/pages/HomePage.css */
 
 .homepage-container {
@@ -6,6 +5,15 @@
   min-height: 100vh;
 }
 
+.loading-state, .error-state {
+    text-align: center;
+    padding: 100px;
+}
+.error-state {
+    color: #EF4444; /* แดง */
+}
+
+/* 1. ส่วน Banner (สีม่วง) */
 .home-banner {
   background-color: #6D28D9; /* (สีม่วง 600) */
   padding: 32px;
@@ -22,6 +30,13 @@
   margin: 0 0 16px 0;
 }
 
+.home-status-message {
+    text-align: center;
+    color: #E0E7FF; /* ม่วงอ่อน */
+    font-size: 0.9rem;
+    margin: -10px 0 10px 0;
+}
+
 .home-search-wrapper {
   max-width: 768px; /* (max-w-2xl) */
   margin: 0 auto;
@@ -33,7 +48,7 @@
   font-size: 1.125rem; /* 18px */
   border-radius: 8px;
   padding: 12px 20px 12px 20px;
-  padding-right: 48px; /* (เว้นที่ให้ไอคอน) */
+  padding-right: 48px;
   border: none;
   box-sizing: border-box;
 }
@@ -41,13 +56,14 @@
 .home-search-icon {
   height: 24px;
   width: 24px;
-  color: #9CA3AF; /* (สีเทา 400) */
+  color: #9CA3AF;
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
 }
 
+/* 2. ส่วนเนื้อหาหลัก */
 .home-content-wrapper {
   max-width: 1280px; /* (max-w-7xl) */
   margin: 0 auto;
@@ -57,13 +73,22 @@
 .home-section-title {
   font-size: 1.5rem; /* 24px */
   font-weight: 700;
-  color: #1F2937; /* (สีเทา 800) */
+  color: #1F2937;
   margin-bottom: 16px;
 }
 
+/* 3. Horizontal Scroll Container */
 .home-course-scroll {
   display: flex;
-  overflow-x: auto;
+  overflow-x: auto; /* ทำให้เลื่อนได้แนวนอน */
   padding-bottom: 16px;
-  margin: 0 -8px; /* (แก้ระยะห่างของ CourseCard) */
+  margin: 0 -8px; 
+}
+
+.no-review-message {
+    color: #6B7280;
+    text-align: center;
+    padding: 30px;
+    border: 1px dashed #D1D5DB;
+    border-radius: 8px;
 }
