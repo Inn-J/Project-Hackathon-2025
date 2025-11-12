@@ -1,0 +1,153 @@
+/* src/pages/AuthLayout.css */
+
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* 1. ฝั่งซ้าย (สีม่วง) */
+.auth-sidebar {
+  width: 50%;
+  background: linear-gradient(145deg, #a855f7, #6d28d9); /* ไล่สีม่วง */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* 1. The white circle (Wrapper) */
+.auth-logo-wrapper {
+  background-color: white;
+  border-radius: 50%; /* Makes it a circle */
+  width: 500px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden; /* ⬅️ IMPORTANT: This "cuts off" anything that overflows */
+}
+
+/* 2. The logo image INSIDE the wrapper */
+.auth-logo-wrapper img {
+  width: 80%;           /* Make the image 80% of the circle's width */
+  height: 80%;          /* Make the image 80% of the circle's height */
+  object-fit: contain;  /* ⬅️ IMPORTANT: This scales the image down to fit */
+  margin-left: 12   px;
+}
+
+.auth-logo-text {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.auth-logo-subtext {
+  font-size: 1.5rem;
+  color: #555;
+}
+
+
+/* 2. ฝั่งขวา (ฟอร์มสีขาว) */
+.auth-form-container {
+  width: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  margin: 0 auto 30px auto;
+}
+
+.auth-input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9CA3AF; /* (สีเทา 400) */
+}
+
+.auth-input {
+  width: 100%;
+  background-color: #F3F4F6; /* (สีเทา 100) */
+  border: 1px solid #E5E7EB; /* (สีเทา 200) */
+  border-radius: 8px;
+  padding: 12px 12px 12px 45px; /* (เว้นที่ให้ไอคอน 45px) */
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(90deg, #c084fc, #a855f7); /* ไล่สีม่วง */
+  border: none;
+  border-radius: 9999px; /* (วงรี) */
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+  margin-top: 10px;
+}
+.auth-button:hover {
+  background: linear-gradient(90deg, #a855f7, #9333ea);
+}
+
+.auth-link-container {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #6B7280; /* (สีเทา 500) */
+}
+
+.auth-link {
+  color: #6D28D9; /* (สีม่วง) */
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-back-button {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-back-button:hover {
+  background: #e0e0e0;
+}
