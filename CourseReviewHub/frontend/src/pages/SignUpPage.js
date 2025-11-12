@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './AuthLayout.css'; // 1. Import CSS เดียวกัน
 import { useNavigate } from 'react-router-dom';
 import { UserIcon, MailIcon, LockClosedIcon, AcademicCapIcon, BriefcaseIcon, ArrowLeftIcon, IdentificationIcon } from '@heroicons/react/solid';
-// import axios from '../services/axiosConfig'; // (Import Axios)
+import axios from '../services/axiosConfig'; 
 import logo from '../img/logo.png';
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -60,7 +60,7 @@ export default function SignUpPage() {
     try {
       // --- (สำคัญ!) ยิง API Register ของอิน ---
       // (นี่คือโค้ดจริงที่ต้องใช้ - ตอนนี้ขอ Comment ไว้ก่อน)
-      // await axios.post('/users/register', formData);
+      await axios.post('/users/register', formData);
 
       // (โค้ดจำลอง)
       console.log('Registering with data:', formData);
