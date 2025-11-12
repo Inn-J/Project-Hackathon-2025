@@ -1,20 +1,8 @@
-# Node
-node_modules/
-.env
-
-# Frontend
-frontend/node_modules/
-frontend/dist/
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS
+# ไฟล์ทั่วไปที่ไม่ต้องการ
 .DS_Store
 Thumbs.db
+*.log
 
-#backend
-backend/node_modules/
-backend/.env
-serviceAccountKey.json
+# IDE
+.vscode/
+.idea/

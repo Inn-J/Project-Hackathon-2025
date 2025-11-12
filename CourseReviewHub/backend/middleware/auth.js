@@ -1,18 +1,26 @@
 import admin from "../firebase/firebase.js";
 
 const checkAuth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ error: "ไม่มี Token (ตั๋ว)" });
-  }
-  
   try {
-    const decoded = await admin.auth().verifyIdToken(token);
-    req.user_id = decoded.uid;
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'ไม่พบ Token' });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    
+    // ตรวจสอบ Token กับ Firebase
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    // แปะ user_id ไว้ใน request
+    req.user_id = decodedToken.uid;
+    req.user_email = decodedToken.email;
+    
     next();
-  } catch (err) {
-    res.status(401).json({ error: "Token (ตั๋ว) ไม่ถูกต้อง" });
+  } catch (error) {
+    console.error('Auth error:', error);
+    return res.status(403).json({ error: 'Token ไม่ถูกต้อง' });
   }
 };
 
