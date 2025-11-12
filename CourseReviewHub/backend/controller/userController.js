@@ -50,7 +50,7 @@ export const getUserProfile = async (req, res) => {
 
     const { data, error } = await supabase
       .from("users")
-      .select("id, email, username, role, student_id") // ดึง role มาด้วย!
+      .select("email, username, role, student_id, faculty, major") 
       .eq("id", uid)
       .single();
 
