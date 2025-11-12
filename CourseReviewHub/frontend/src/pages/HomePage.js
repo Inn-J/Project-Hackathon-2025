@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import Header from '../components/Headerver2';
 import CourseCard from '../components/CourseCard';
 import ReviewCard from '../components/ReviewCard';
 import { SearchIcon } from '@heroicons/react/solid';
@@ -95,7 +95,7 @@ export default function HomePage() {
             e.preventDefault();
             goSearch();
           }}
-        >
+     >
           <input
             type="text"
             placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..."
