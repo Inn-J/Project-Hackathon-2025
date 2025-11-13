@@ -41,6 +41,7 @@ function ProfileHeader({ currentUser, stats }) {
   const averageRating = stats?.averageRating ? stats.averageRating.toFixed(1) : 'XX';
 
   return (
+    
     <div className="profile-header">
       <div className="profile-header-info">
         <div className="profile-avatar">{avatarInitial}</div>
@@ -149,7 +150,6 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page-container">
-      <Header />
       
       {/* ส่ง stats ที่ได้จาก API ไปให้ ProfileHeader */}
       {currentUser && (

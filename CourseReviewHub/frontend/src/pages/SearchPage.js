@@ -29,7 +29,6 @@ export default function SearchPage() {
 
   return (
     <div className="searchpage-container">
-      <Header />
 
       <div className="search-content-wrapper">
         {/* ----- Sidebar ตัวกรอง (ยังเป็น mock / ยังไม่ต้องมี logic ก็ได้) ----- */}
