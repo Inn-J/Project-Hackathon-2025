@@ -38,7 +38,7 @@ export default function CourseDetail() {
     };
 
     fetchCourseData();
-  }, [id]);
+  }, [id],[reviews]);
 
   if (loading) return <div>กำลังโหลดข้อมูล...</div>;
   if (!course) return <div>ไม่พบข้อมูลรายวิชา</div>;

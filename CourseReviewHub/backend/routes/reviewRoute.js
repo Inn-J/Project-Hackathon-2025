@@ -1,6 +1,6 @@
 import express from 'express';
 import { getLatestReviews, createReview, getReviewsByCourse, getReviewById, updateReview, deleteReview } from '../controller/reviewController.js';
-// (ยังไม่ต้องใช้ "ยาม" checkAuth ก็ได้ ถ้าอยากให้หน้า Home โหลดเร็ว)
+import checkAuth from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -10,6 +10,6 @@ router.get('/course/:courseId', getReviewsByCourse);
 router.get('/:id', getReviewById);
 router.post('/', createReview); 
 router.patch('/:id', updateReview);
-router.delete('/:id', deleteReview);
+router.delete('/:id',checkAuth, deleteReview);
 
 export default router;

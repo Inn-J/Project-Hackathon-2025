@@ -163,33 +163,26 @@ export const updateReview = async (req, res) => {
 // DELETE /api/reviews/:id (DELETE - ลบรีวิว)
 // ----------------------------------------------------------------
 export const deleteReview = async (req, res) => {
-    // ⚠️ NOTE: ต้องตรวจสอบว่า req.user_id เป็นเจ้าของรีวิว หรือเป็น Admin
-    try {
-        const userId = req.user_id;
-        const reviewId = req.params.id;
+  try {
+    const userId = req.user_id;
+    const reviewId = req.params.id;
 
-        if (!userId) {
-            return res.status(401).json({ error: "Authentication required." });
-        }
-
-        // โค้ดที่ซับซ้อนกว่านี้ควรดึง Role ของ user มาตรวจสอบก่อนว่า user เป็น 'admin' ไหม
-
-        // ลบข้อมูลโดยมีเงื่อนไขว่าต้องเป็นรีวิวที่มี ID ตรงและผู้ใช้ปัจจุบันเป็นเจ้าของ
-        const { error, count } = await supabase
-            .from('reviews')
-            .delete()
-            .eq('id', reviewId)
-            .eq('user_id', userId); // ⬅️ เงื่อนไขสำคัญ: ต้องเป็นเจ้าของรีวิวเท่านั้น
-
-        if (error) throw error;
-
-        if (count === 0) {
-            return res.status(403).json({ error: "Review not found or you are not authorized to delete this review." });
-        }
-
-        res.status(200).json({ message: "✅ Review deleted successfully", reviewId });
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required." });
     }
+
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', reviewId)
+      .eq('user_id', userId); 
+
+    if (error) throw error;
+
+    return res.status(200).json({message: "✅ Review deleted successfully"});
+
+  } catch (error) {
+    console.error("deleteReview error:", error);
+    return res.status(500).json({ error: error.message });
+  }
 };
