@@ -119,30 +119,37 @@ export const getMyReviews = async (req, res) => {
 // GET /api/reviews/:id (READ by ID - ดึงรีวิวตาม ID)
 // ----------------------------------------------------------------
 export const getReviewById = async (req, res) => {
-    try {
-        const reviewId = req.params.id;
+  try {
+    const { data, error } = await supabase
+  .from('reviews')
+  .select(`
+    *,
+    users (username, role),
+    instructor:users!reviews_instructor_id_fkey (username)
+  `)
+  .eq('id', reviewId)
+  .maybeSingle();
 
-        const { data, error } = await supabase
-            .from('reviews')
-            .select(`
-                *,
-                courses (course_code, name_th),
-                users (username, role)
-            `)
-            .eq('id', reviewId)
-            .maybeSingle();
+    if (error) throw error;
 
-        if (error) throw error;
-
-        if (!data) {
-            return res.status(404).json({ error: "Review not found" });
-        }
-
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (!data) {
+      return res.status(404).json({ error: "Review not found" });
     }
+
+    res.status(200).json(data);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
+
+
+
+
+
+
+
+
 
 // ----------------------------------------------------------------
 // PATCH /api/reviews/:id (UPDATE - อัปเดตรีวิว)

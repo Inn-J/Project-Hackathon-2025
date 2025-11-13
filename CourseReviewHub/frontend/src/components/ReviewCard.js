@@ -25,6 +25,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const isStudent = role.toLowerCase() === 'student';
   const isInstructor = role.toLowerCase() === 'instructor';
 
+console.log(review.instructor);
   const isOwner =
     currentUser &&
     review.authorId &&
@@ -120,6 +121,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
       alert('ส่งคำตอบไม่สำเร็จ');
     }
   };
+
 
   return (
     <>
@@ -232,6 +234,31 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
               {review.content?.tips || '-'}
             </p>
           </div>
+          <div className="content-section" style={{ marginTop: '20px' }}>
+{review.instructor_reply && (
+  <div style={{
+    backgroundColor: '#f0f8ff',
+    padding: '12px',
+    borderRadius: '8px',
+    border: '1px solid #cce0ff',
+    marginTop: '10px'
+  }}>
+    <p style={{
+      fontWeight: 'bold',
+      marginBottom: '8px',
+      color: '#003366'
+    }}>
+      💬 ตอบกลับโดย {review.instructor?.username  || 'อาจารย์'}
+    </p>
+    <p style={{ margin: 0, color: '#333' }}>
+      {review.instructor_reply}
+    </p>
+  </div>
+)}
+
+
+</div>
+
 
           {/* FOOTER */}
           <div className="review-footer">

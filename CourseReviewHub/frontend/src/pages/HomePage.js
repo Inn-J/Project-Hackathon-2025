@@ -146,27 +146,31 @@ export default function HomePage() {
         {latestReviews.length > 0 ? (
           // เปลี่ยนมาใช้ .map() แทนการ hardcode [0], [1]
           latestReviews.map(review => (
-            <ReviewCard 
-              // ใช้ key ที่ไม่ซ้ำกัน (เช่น review.id หรือ review.review_id)
-              key={review.id || review.review_id} 
-              review={{
-                id: review.id || review.review_id,          
-                authorId: review.user_id || review.users?.id,
-                author: review.users.username,
-                grade: review.grade,
-                tags: review.tags || ['#ข้อมูลจากระบบ'],
-                ratings: {
-                  satisfaction: review.rating_satisfaction || 3,
-                  difficulty: review.rating_difficulty || 3,
-                  workload: review.rating_workload || 3,
-                },
-                content: {
-                  prerequisite: review.content_prerequisite || 'ไม่มีข้อมูล',
-                  prosCons: review.content_pros_cons || 'ไม่มีข้อมูล',
-                  tips: review.content_tips || 'ไม่มีเคล็ดลับ',
-                }
-              }} 
-            />
+<ReviewCard 
+  key={review.id || review.review_id} 
+  review={{
+    id: review.id || review.review_id,          
+    authorId: review.user_id || review.users?.id,
+    author: review.users.username,
+    grade: review.grade,
+    tags: review.tags || ['#ข้อมูลจากระบบ'],
+    ratings: {
+      satisfaction: review.rating_satisfaction || 3,
+      difficulty: review.rating_difficulty || 3,
+      workload: review.rating_workload || 3,
+    },
+    content: {
+      prerequisite: review.content_prerequisite || 'ไม่มีข้อมูล',
+      prosCons: review.content_pros_cons || 'ไม่มีข้อมูล',
+      tips: review.content_tips || 'ไม่มีเคล็ดลับ',
+    },
+    instructor_reply: review.instructor_reply,
+    instructor: {
+      username: review.instructor?.username 
+    }
+  }} 
+/>
+
           ))
         ) : (
           <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
