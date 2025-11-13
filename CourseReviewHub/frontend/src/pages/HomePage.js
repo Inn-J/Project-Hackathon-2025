@@ -151,6 +151,8 @@ export default function HomePage() {
               // ใช้ key ที่ไม่ซ้ำกัน (เช่น review.id หรือ review.review_id)
               key={review.id || review.review_id} 
               review={{
+                id: review.id || review.review_id,          
+                authorId: review.user_id || review.users?.id,
                 author: review.users.username,
                 grade: review.grade,
                 tags: review.tags || ['#ข้อมูลจากระบบ'],

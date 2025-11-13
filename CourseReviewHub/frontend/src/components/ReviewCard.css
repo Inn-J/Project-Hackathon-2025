@@ -189,3 +189,35 @@
 .review-report-button:hover {
   color: #EF4444; /* (สีแดง 600) */
 }
+
+.review-menu-wrapper {
+  position: relative;
+}
+
+.review-dropdown-menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 6px 0;
+  z-index: 10;
+  min-width: 140px;
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #444;
+  transition: 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+}
