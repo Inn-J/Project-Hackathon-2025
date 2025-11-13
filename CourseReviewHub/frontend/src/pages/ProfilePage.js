@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header.js'; // 1. แก้ไข
 import { useAuth } from '../context/AuthContext.js'; // 2. แก้ไข
 import { ClockIcon } from '@heroicons/react/solid'; // (อันนี้แก้ไว้ตั้งแต่ก่อนหน้า)
-import './ProfilePage.css'; // (CSS ไม่ต้อง .js)
 
 import apiClient from '../services/axiosConfig.js'; // 3. แก้ไข
+import './ProfilePage.css';
 
 // --- Helper Function (สำหรับแปลงวันที่) ---
 const formatDate = (isoString) => {
@@ -14,7 +14,7 @@ const formatDate = (isoString) => {
     // แปลงเป็น "วัน เดือน ปี" (เช่น "15 ม.ค. 2025")
     return date.toLocaleDateString('th-TH', {
       month: 'short',
-      day: '2-digit',
+      day: 'numeric',
       year: 'numeric',
     });
   } catch (error) {
@@ -31,7 +31,7 @@ function ProfileHeader({ currentUser, stats }) {
   const displayName = username !== 'N/A' ? username : emailPrefix;
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
-  const joinedDate = formatDate(currentUser?.createdAt || '12/11/2025');
+  const joinedDate = formatDate(currentUser?.created_at);
   const userRole = currentUser?.role || 'Member';
 
   // ใช้ข้อมูล stats ที่ยิง API มา (ถ้ายังไม่มีให้โชว์ 'XX')
@@ -41,7 +41,6 @@ function ProfileHeader({ currentUser, stats }) {
   const averageRating = stats?.averageRating ? stats.averageRating.toFixed(1) : 'XX';
 
   return (
-    
     <div className="profile-header">
       <div className="profile-header-info">
         <div className="profile-avatar">{avatarInitial}</div>
@@ -150,6 +149,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page-container">
+
       
       {/* ส่ง stats ที่ได้จาก API ไปให้ ProfileHeader */}
       {currentUser && (
