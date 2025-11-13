@@ -14,13 +14,20 @@ import './ReviewCard.css';
 export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const [openMenu, setOpenMenu] = useState(false);
   const [openReport, setOpenReport] = useState(false);
+  const [openReply, setOpenReply] = useState(false);
+  const [replyText, setReplyText] = useState('');
   const menuRef = useRef();
 
   const { currentUser } = useAuth();
 
+  // ---- ROLE ----
+  const role = currentUser?.role || ''; // 'student', 'instructor', 'admin' อะไรก็ว่าไป
+  const isStudent = role.toLowerCase() === 'student';
+  const isInstructor = role.toLowerCase() === 'instructor';
+
   const isOwner =
     currentUser &&
-    review.authorId &&           // ต้องมี authorId มาด้วย
+    review.authorId &&
     currentUser.id === review.authorId;
 
   useEffect(() => {
@@ -64,21 +71,57 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     try {
       await apiClient.delete(`/reviews/${review.id}`);
       console.log('ลบรีวิวสำเร็จ');
-      onDeleteReview?.(review.id); // ให้ parent เอาไปลบออกจาก state ถ้าส่งมา
+      onDeleteReview?.(review.id);
     } catch (err) {
       console.error('ลบรีวิวไม่สำเร็จ', err);
       alert('ลบรีวิวไม่สำเร็จ');
     }
   };
 
-  // 👉 แก้ไขรีวิว (เปิด modal / ไปหน้าแก้ไข แล้วแต่จะต่อยอด)
+  // 👉 แก้ไขรีวิว
   const handleEdit = () => {
-    onEditReview?.(review); // ให้ parent ตัดสินใจว่าจะทำยังไงต่อ
+    onEditReview?.(review);
+  };
+
+  // 👉 กด "มีประโยชน์" / "ไม่มีประโยชน์" (เฉพาะ Student)
+  const handleHelpfulVote = async (isHelpful) => {
+    if (!currentUser || !isStudent) return;
+
+    try {
+      await apiClient.post(`/reviews/${review.id}/helpful`, {
+        userId: currentUser.id,
+        isHelpful, // true = มีประโยชน์, false = ไม่มีประโยชน์
+      });
+      console.log('บันทึกโหวตเรียบร้อย');
+      // TODO: อัปเดต counter ใน UI ต่อได้
+    } catch (err) {
+      console.error('โหวตไม่สำเร็จ', err);
+      alert('โหวตไม่สำเร็จ ลองใหม่อีกครั้ง');
+    }
+  };
+
+  // 👉 Instructor ตอบกลับรีวิว
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+
+    try {
+      await apiClient.post(`/reviews/${review.id}/replies`, {
+        instructorId: currentUser.id,
+        content: replyText.trim(),
+      });
+      console.log('ส่งคำตอบสำเร็จ');
+      alert('ตอบกลับรีวิวแล้ว');
+      setReplyText('');
+      setOpenReply(false);
+      // TODO: โหลด reply มาแสดงใต้รีวิวต่อได้
+    } catch (err) {
+      console.error('ส่งคำตอบไม่สำเร็จ', err);
+      alert('ส่งคำตอบไม่สำเร็จ');
+    }
   };
 
   return (
-  console.log('Review Data:', review),
-
     <>
       <div className="review-card">
         <div className="review-card-content">
@@ -171,7 +214,6 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
           </div>
 
           {/* CONTENT */}
-          
           <div className="content-section">
             <h4 className="content-title">สิ่งที่ควรรู้:</h4>
             <p className="content-text">
@@ -193,10 +235,35 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
 
           {/* FOOTER */}
           <div className="review-footer">
-            <div className="review-footer-actions">
-              <button className="review-footer-button">มีประโยชน์</button>
-              <button className="review-footer-button">ไม่มีประโยชน์</button>
-            </div>
+            {/* Student: ปุ่มโหวต */}
+            {isStudent && (
+              <div className="review-footer-actions">
+                <button
+                  className="review-footer-button"
+                  onClick={() => handleHelpfulVote(true)}
+                >
+                  มีประโยชน์
+                </button>
+                <button
+                  className="review-footer-button"
+                  onClick={() => handleHelpfulVote(false)}
+                >
+                  ไม่มีประโยชน์
+                </button>
+              </div>
+            )}
+
+            {/* Instructor: ปุ่มตอบกลับ */}
+            {isInstructor && (
+              <div className="review-footer-actions">
+                <button
+                  className="review-footer-button review-footer-button--primary"
+                  onClick={() => setOpenReply(true)}
+                >
+                  ตอบกลับรีวิว
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -209,6 +276,54 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
           onSubmit={handleReportSubmit}
           reviewAuthor={review.author}
         />
+      )}
+
+      {/* Modal ตอบกลับสำหรับ Instructor */}
+      {isInstructor && openReply && (
+        <div className="report-modal__backdrop" onClick={() => setOpenReply(false)}>
+          <div
+            className="report-modal__container"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="report-modal__header">
+              <div className="report-modal__icon">💬</div>
+              <div>
+                <h2 className="report-modal__title">ตอบกลับรีวิว</h2>
+                <p className="report-modal__subtitle">
+                  ถึง {review.author}
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleReplySubmit} className="report-modal__body">
+              <section className="report-modal__section">
+                <textarea
+                  className="report-modal__textarea"
+                  placeholder="พิมพ์คำตอบกลับของผู้สอน..."
+                  rows={4}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                />
+              </section>
+
+              <div className="report-modal__footer">
+                <button
+                  type="button"
+                  className="report-modal__btn report-modal__btn--secondary"
+                  onClick={() => setOpenReply(false)}
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  className="report-modal__btn report-modal__btn--primary"
+                >
+                  ส่งคำตอบ
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   );
