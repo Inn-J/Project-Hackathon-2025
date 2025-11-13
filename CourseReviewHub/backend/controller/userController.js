@@ -94,11 +94,16 @@ export const getUserById = async (req, res) => {
 // PATCH /api/users/:uid
 export const updateUser = async (req, res) => {
   try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "ไม่พบ Token" });
+
+    const token = authHeader.split(' ')[1];
+    // ตรวจสอบ token กับ Firebase / Supabase
     const uid = req.params.uid;
-    const { email, password, username, role } = req.body;
-    
-    // (Logic การอัปเดต Firebase...)
-    // (Logic การอัปเดต Supabase...)
+
+    const { email, username, password, role } = req.body;
+
+    // logic อัปเดต user...
 
     res.json({ message: "อัปเดตผู้ใช้สำเร็จ" });
   } catch (err) {

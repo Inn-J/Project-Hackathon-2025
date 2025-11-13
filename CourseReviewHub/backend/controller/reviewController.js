@@ -90,6 +90,32 @@ export const getReviewsByCourse = async (req, res) => {
 
 
 // ----------------------------------------------------------------
+// GET /api/reviews/my - ดึงรีวิวของ user ปัจจุบัน
+// ----------------------------------------------------------------
+export const getMyReviews = async (req, res) => {
+  try {
+    const userId = req.user_id;
+    if (!userId) return res.status(401).json({ error: "Authentication required." });
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        courses (course_code, name_th)
+      `)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+// ----------------------------------------------------------------
 // GET /api/reviews/:id (READ by ID - ดึงรีวิวตาม ID)
 // ----------------------------------------------------------------
 export const getReviewById = async (req, res) => {
@@ -158,6 +184,9 @@ export const updateReview = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+
+
 
 // ----------------------------------------------------------------
 // DELETE /api/reviews/:id (DELETE - ลบรีวิว)

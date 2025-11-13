@@ -77,6 +77,8 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   };
 
   return (
+  console.log('Review Data:', review),
+
     <>
       <div className="review-card">
         <div className="review-card-content">
@@ -84,7 +86,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
           <div className="review-header">
             <div className="review-author-info">
               <div className="review-author-avatar">
-                {review.author.charAt(0)}
+                {(review.author?.charAt(0) || 'U').toUpperCase()}
               </div>
               <div className="review-author-details">
                 <div className="review-author-name">
@@ -147,7 +149,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
 
           {/* TAGS */}
           <div className="review-tags">
-            {review.tags.map(tag => (
+            {(review.tags || []).map(tag => (
               <span key={tag} className="review-tag-item">{tag}</span>
             ))}
           </div>
@@ -156,32 +158,37 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
           <div className="review-ratings-container">
             <div className="rating-group">
               <span className="rating-label">ความพอใจ:</span>
-              {renderRating(StarIcon, review.ratings.satisfaction, 'rating-yellow')}
+              {renderRating(StarIcon, review.ratings?.satisfaction || 0, 'rating-yellow')}
             </div>
             <div className="rating-group">
               <span className="rating-label">ความยาก:</span>
-              {renderRating(FireIcon, review.ratings.difficulty, 'rating-orange')}
+              {renderRating(FireIcon, review.ratings?.difficulty || 0, 'rating-orange')}
             </div>
             <div className="rating-group">
               <span className="rating-label">ปริมาณงาน:</span>
-              {renderRating(BookOpenIcon, review.ratings.workload, 'rating-blue')}
+              {renderRating(BookOpenIcon, review.ratings?.workload || 0, 'rating-blue')}
             </div>
           </div>
 
           {/* CONTENT */}
-          <div className="review-content-body">
-            <div className="content-section">
-              <h4 className="content-title">สิ่งที่ควรรู้:</h4>
-              <p className="content-text">{review.content.prerequisite}</p>
-            </div>
-            <div className="content-section">
-              <h4 className="content-title">ข้อดี / ข้อเสีย:</h4>
-              <p className="content-text">{review.content.prosCons}</p>
-            </div>
-            <div className="content-section">
-              <h4 className="content-title">Tips:</h4>
-              <p className="content-text">{review.content.tips}</p>
-            </div>
+          
+          <div className="content-section">
+            <h4 className="content-title">สิ่งที่ควรรู้:</h4>
+            <p className="content-text">
+              {review.content?.prerequisite || '-'}
+            </p>
+          </div>
+          <div className="content-section">
+            <h4 className="content-title">ข้อดี / ข้อเสีย:</h4>
+            <p className="content-text">
+              {review.content?.prosCons || '-'}
+            </p>
+          </div>
+          <div className="content-section">
+            <h4 className="content-title">Tips:</h4>
+            <p className="content-text">
+              {review.content?.tips || '-'}
+            </p>
           </div>
 
           {/* FOOTER */}
