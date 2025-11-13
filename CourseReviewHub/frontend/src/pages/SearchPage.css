@@ -1,5 +1,28 @@
 /* src/pages/SearchPage.css */
 
+/* ใน SearchPage.css */
+
+.search-course-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.more-detail-button {
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #6366f1;
+  background: white;
+  color: #4f46e5;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.more-detail-button:hover {
+  background: #eef2ff;
+}
+
 .search-content-wrapper {
   max-width: 1280px; /* (max-w-7xl) */
   margin: 0 auto;
