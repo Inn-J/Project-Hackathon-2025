@@ -185,6 +185,98 @@ export const updateReview = async (req, res) => {
     }
 };
 
+export const voteReviewHelpful = async (req, res) => {
+  try {
+    const userId = req.user_id;        // จาก checkAuth
+    const reviewId = req.params.id;
+    const { isHelpful } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    if (typeof isHelpful !== 'boolean') {
+      return res.status(400).json({ error: "isHelpful must be boolean." });
+    }
+
+    // 1) ดึง role ของ user
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .select('id, role')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (userErr) throw userErr;
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    if ((user.role || '').toLowerCase() !== 'student') {
+      return res.status(403).json({ error: "Only students can vote helpful/unhelpful." });
+    }
+
+    // 2) เช็คว่ารีวิวมีจริงไหม (กัน user ยิง id มั่ว)
+    const { data: review, error: reviewErr } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('id', reviewId)
+      .maybeSingle();
+
+    if (reviewErr) throw reviewErr;
+    if (!review) {
+      return res.status(404).json({ error: "Review not found." });
+    }
+
+    // 3) หา vote เดิมของ user คนนี้ในรีวิวนี้
+    const { data: existing, error: exErr } = await supabase
+      .from('helpful_votes')
+      .select('id, isHelpful')
+      .eq('review_id', reviewId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (exErr) throw exErr;
+
+    let savedVote;
+
+    if (!existing) {
+      // ยังไม่เคยโหวต → insert แถวใหม่
+      const { data, error: insertErr } = await supabase
+        .from('helpful_votes')
+        .insert({
+          user_id: userId,
+          review_id: reviewId,
+          isHelpful: isHelpful,
+        })
+        .select('*')
+        .single();
+
+      if (insertErr) throw insertErr;
+      savedVote = data;
+    } else {
+      // โหวตแล้ว → update ค่า isHelpful แทน
+      const { data, error: updateErr } = await supabase
+        .from('helpful_votes')
+        .update({ isHelpful: isHelpful })
+        .eq('id', existing.id)
+        .select('*')
+        .single();
+
+      if (updateErr) throw updateErr;
+      savedVote = data;
+    }
+
+    return res.status(200).json({
+      message: "Vote recorded successfully.",
+      vote: savedVote,
+    });
+
+  } catch (error) {
+    console.error("voteReviewHelpful error:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 
