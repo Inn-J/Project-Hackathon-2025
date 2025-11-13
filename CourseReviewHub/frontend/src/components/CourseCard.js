@@ -1,8 +1,13 @@
 import React from 'react';
 import { FireIcon } from '@heroicons/react/solid';
 import './CourseCard.css'; // Import CSS
+import { useNavigate } from "react-router-dom";
 
 export default function CourseCard({ course }) {
+  const navigate = useNavigate();
+  const openDetail = () => {
+    navigate(`/courses/${course.id}`);   // ← ไปหน้าแสดงคอร์ส
+  };
   const renderDifficulty = (level) => {
     let icons = [];
     for (let i = 0; i < 5; i++) {
@@ -31,9 +36,9 @@ export default function CourseCard({ course }) {
           {course.reviewCount} คำแนะนำ
         </div>
 
-        <button className="course-button">
-          ดูรายละเอียด
-        </button>
+        <button className="course-button" onClick={openDetail}>
+        ดูรายละเอียด
+      </button>
       </div>
     </div>
   );

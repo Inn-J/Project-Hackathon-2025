@@ -79,7 +79,6 @@ export default function HomePage() {
   // (โค้ดส่วนแสดงผลหลัก)
   return (
     <div className="homepage-container">
-      <Header />
       
       {/* 1. ส่วน Banner ค้นหา (สีม่วง) - (ของเพื่อน) */}
       <div className="home-banner">

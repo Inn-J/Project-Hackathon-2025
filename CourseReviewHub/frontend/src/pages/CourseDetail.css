@@ -1,0 +1,103 @@
+.course-detail-container {
+  padding: 20px 40px;
+  margin-top: 30px;
+}
+
+.course-header-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 25px;
+  border: 1px solid #e5e7ea;
+  position: relative;
+}
+
+.course-code {
+  color: #6c63ff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.course-title {
+  font-size: 28px;
+  margin: 5px 0 10px 0;
+}
+
+.course-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.course-tags {
+  margin-top: 10px;
+}
+
+.course-tag {
+  background: #f2f2ff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  margin-right: 6px;
+  font-size: 13px;
+  color: #6a5acd;
+}
+
+.course-header-actions {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-save,
+.btn-add-review {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-add-review {
+  background: #ff9f29;
+  color: white;
+  border: none;
+}
+
+.instructor-box {
+  background: #e8fff8;
+  border: 1px solid #b0f3d2;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-top: 25px;
+}
+
+.review-filter {
+  display: flex;
+  gap: 10px;
+  margin: 25px 0;
+}
+
+.review-filter button {
+  padding: 8px 16px;
+  background: #f4f4f4;
+  border: none;
+  border-radius: 20px;
+}
+
+.review-filter .active {
+  background: #6c63ff;
+  color: white;
+}
+
+.review-list {
+  margin-top: 20px;
+}
+
+.empty-review {
+  text-align: center;
+  color: #777;
+  margin-top: 20px;
+}

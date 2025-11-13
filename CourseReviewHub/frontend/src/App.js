@@ -6,6 +6,8 @@ import SignUpPage from './pages/SignUpPage';
 import HomePage from './pages/HomePage';
 import SearchPage from './pages/SearchPage';
 import ProfilePage from './pages/ProfilePage'; // 1. Import หน้า ProfilePage
+import Header from './components/Headerver2';
+import CourseDetail from './pages/CourseDetail';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
@@ -20,6 +22,8 @@ function AppRoutes() {
   const { currentUser } = useAuth();
 
   return (
+    <>
+     <Header/>
     <Routes>
       <Route 
         path="/login" 
@@ -54,8 +58,18 @@ function AppRoutes() {
           </ProtectedRoute>
         } 
       />
+
+      
+      <Route path="/courses/:id" 
+      element={
+      <ProtectedRoute>
+        <CourseDetail/>
+        </ProtectedRoute>}
+        />
+    <Route path="/search" element={<SearchPage />} /> 
+  
     </Routes>
-    // 3. ลบ Route ที่หลงอยู่นอก <Routes> ออก
+    </>
   );
 }
 

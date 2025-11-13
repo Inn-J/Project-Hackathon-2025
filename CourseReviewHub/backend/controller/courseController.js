@@ -70,25 +70,58 @@ export const getAllCourses = async (req, res) => {
 // GET /api/courses/:id (READ by ID - ดึงรายวิชาตาม ID)
 // ----------------------------------------------------------------
 export const getCourseById = async (req, res) => {
-    try {
-        const courseId = req.params.id;
+  try {
+    const courseId = req.params.id;
 
-        const { data, error } = await supabase
-            .from('courses')
-            .select('*')
-            .eq('id', courseId)
-            .maybeSingle(); // ใช้ maybeSingle เพื่อให้ return null แทน error ถ้าไม่พบข้อมูล
+    // 1) ดึงข้อมูลวิชา
+    const { data: course, error: courseErr } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("id", courseId)
+      .maybeSingle();
 
-        if (error) throw error;
+    if (courseErr) throw courseErr;
+    if (!course) return res.status(404).json({ error: "Course not found" });
 
-        if (!data) {
-            return res.status(404).json({ error: "Course not found" });
-        }
+    // 2) ดึงรีวิวของคอร์ส
+    const { data: reviewsRaw, error: reviewErr } = await supabase
+      .from("reviews")
+      .select(`
+        *,
+        users ( username )
+      `)
+      .eq("course_id", courseId)
+      .order("created_at", { ascending: false });
 
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    if (reviewErr) throw reviewErr;
+
+    // ✅ กันตัวซ้ำโดยดูจาก review.id
+    const seen = new Set();
+    const reviews = [];
+    for (const r of reviewsRaw || []) {
+      if (!seen.has(r.id)) {
+        seen.add(r.id);
+        reviews.push(r);
+      }
     }
+
+    // 3) ส่งกลับในรูปแบบที่หน้า React ต้องการ
+    res.status(200).json({
+      course: {
+        id: course.id,
+        course_code: course.course_code,
+        name_th: course.name_th,
+        name_en: course.name_en,
+        credit: course.credit,
+        description: course.description,
+        instructor_summary: course.instructor_summary
+      },
+      reviews
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 // ----------------------------------------------------------------
