@@ -13,8 +13,8 @@ const formatDate = (isoString) => {
     const date = new Date(isoString);
     // แปลงเป็น "วัน เดือน ปี" (เช่น "15 ม.ค. 2025")
     return date.toLocaleDateString('th-TH', {
-      day: 'numeric',
       month: 'short',
+      day: '2-digit',
       year: 'numeric',
     });
   } catch (error) {
@@ -31,7 +31,7 @@ function ProfileHeader({ currentUser, stats }) {
   const displayName = username !== 'N/A' ? username : emailPrefix;
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
-  const joinedDate = formatDate(currentUser?.createdAt);
+  const joinedDate = formatDate(currentUser?.createdAt || '12/11/2025');
   const userRole = currentUser?.role || 'Member';
 
   // ใช้ข้อมูล stats ที่ยิง API มา (ถ้ายังไม่มีให้โชว์ 'XX')
