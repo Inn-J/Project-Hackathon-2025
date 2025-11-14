@@ -1,33 +1,28 @@
 import React, { useState } from 'react';
-import { SearchIcon, BookmarkIcon, UserCircleIcon, UserIcon, LogoutIcon } from '@heroicons/react/solid';
-import { useNavigate } from 'react-router-dom';
+import { SearchIcon, BookmarkIcon, UserIcon, LogoutIcon } from '@heroicons/react/solid';
+import { useNavigate, NavLink } from 'react-router-dom'; // ⬅️ 1. Import NavLink
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
-import { auth } from '../services/firebaseConfig'; 
+import { auth } from '../services/firebaseConfig';
 import './Header.css';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // ดึงข้อมูล User ปัจจุบัน
+  const { currentUser } = useAuth(); // ⬅️ 2. ดึง User
 
-  // ----------------------------------------------------
-  // ✅ Logic แก้ไข: ดึงตัวแรกของ Email ก่อนเครื่องหมาย @
-  // ----------------------------------------------------
   const emailPrefix = currentUser?.email?.split('@')[0] || 'Guest';
   const profileInitial = emailPrefix.charAt(0).toUpperCase(); 
-  
   const usernameDisplay = currentUser?.username || emailPrefix; 
   const roleDisplay = currentUser?.role || 'N/A';
-  // ----------------------------------------------------
   
   const handleLogout = async () => {
     try {
-      await signOut(auth); // สั่ง Firebase Logout
+      await signOut(auth); 
       setIsMenuOpen(false);
+      navigate('/login'); 
     } catch (error) {
       console.error("Logout Error:", error);
-      alert("ไม่สามารถ Logout ได้");
     }
   };
 
@@ -35,7 +30,6 @@ export default function Header() {
     <div className="header-container">
       <h1 className="header-logo" onClick={() => navigate('/')}>CourseReviewHub</h1>
       
-      {/* Search Bar (ตรงกลาง) */}
       <div className="header-search-wrapper">
         <input
           type="text"
@@ -46,39 +40,47 @@ export default function Header() {
       </div>
 
       <div className="header-icons-area">
-        <button className="header-icon-button">
-          <BookmarkIcon className="header-icon" />
-        </button>
+      
+        {/* ⬅️ 3. แก้ปุ่ม Wishlist ให้เป็น Link ที่กดได้ */}
+        {currentUser && ( 
+          <NavLink 
+            to="/wishlist" 
+            className={({ isActive }) => 
+              isActive ? "header-icon-button active" : "header-icon-button"
+            }
+            title="Wishlist"
+          >
+            <BookmarkIcon className="header-icon" />
+          </NavLink>
+        )}
         
-        {/* ปุ่ม Profile และ Dropdown Menu */}
         <div className="profile-menu-container">
             <button 
-                className="header-icon-button profile-button" 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="header-icon-button profile-button" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-                {/* ⬇️ ใช้ตัวแปรที่แก้ไขแล้ว ⬇️ */}
-                <span className="profile-initial">{profileInitial}</span>
+              <span className="profile-initial">{profileInitial}</span>
             </button>
 
             {isMenuOpen && (
-                <div className="profile-dropdown">
-                    <div className="profile-dropdown-user">
-                        <p className="profile-username">{usernameDisplay}</p>
-                        <p className="profile-role">Role: {roleDisplay}</p>
-                    </div>
-                    <button 
-                        className="dropdown-item"
-                        onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
-                    >
-                        <UserIcon className="dropdown-icon" /> My Profile
-                    </button>
-                    <button 
-                        className="dropdown-item logout-item"
-                        onClick={handleLogout}
-                    >
-                        <LogoutIcon className="dropdown-icon" /> Logout
-                    </button>
-                </div>
+              <div className="profile-dropdown">
+                  <div className="profile-dropdown-user">
+                      <p className="profile-username">{usernameDisplay}</p>
+                      <p className="profile-role">Role: {roleDisplay}</p>
+                  </div>
+                  <button 
+                      className="dropdown-item"
+                      onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
+                  >
+                      <UserIcon className="dropdown-icon" /> My Profile
+                  </button>
+                  <button 
+                      className="dropdown-item logout-item"
+                      onClick={handleLogout}
+                  >
+                      <LogoutIcon className="dropdown-icon" /> Logout
+                  </button>
+              </div>
             )}
         </div>
       </div>

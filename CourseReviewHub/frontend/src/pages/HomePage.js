@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Headerver2';
+import Header from '../components/HomeHeader';
 import CourseCard from '../components/CourseCard';
 import ReviewCard from '../components/ReviewCard';
 import { SearchIcon } from '@heroicons/react/solid';

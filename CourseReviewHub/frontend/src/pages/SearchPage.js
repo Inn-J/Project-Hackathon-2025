@@ -1,6 +1,6 @@
 // src/pages/SearchPage.jsx
 import React from 'react';
-import Header from '../components/Header';
+import Header from '../components/HomeHeader';
 import CourseCard from '../components/CourseCard';
 import { useLocation } from 'react-router-dom';
 import './SearchPage.css';

@@ -7,6 +7,7 @@ import {
   FireIcon,
   BookOpenIcon
 } from '@heroicons/react/solid';
+import Header from "../components/Header";
 
 import ReviewCard from "../components/ReviewCard";
 
@@ -54,6 +55,8 @@ export default function CourseDetail() {
         });
 
   return (
+    <>
+      <Header />
     <div className="course-detail-container">
 
       {/* HEADER วิชา */}
@@ -158,5 +161,6 @@ export default function CourseDetail() {
         )}
       </div>
     </div>
+    </>
   );
 }

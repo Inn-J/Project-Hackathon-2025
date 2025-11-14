@@ -7,6 +7,7 @@ import './ProfilePage.css';
 import apiClient from '../services/axiosConfig.js';
 import { getAuth } from 'firebase/auth';
 import 'firebase/auth';
+import Header from '../components/Header.js';
 
 // --- Helper Function แปลงวันที่ ---
 const formatDate = (isoString) => {
@@ -43,7 +44,9 @@ function ProfileHeader({ currentUser, reviews }) {
   
  
   return (
-    <div className="profile-header">
+    <>
+     <Header />,
+  <div className="profile-header">
       <div className="profile-header-info">
         <div className="profile-avatar">{avatarInitial}</div>
         <div className="profile-details">
@@ -71,6 +74,7 @@ function ProfileHeader({ currentUser, reviews }) {
         </div>
       </div>
     </div>
+     </>
   );
 }
 

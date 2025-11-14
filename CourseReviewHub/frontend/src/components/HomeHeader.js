@@ -1,48 +1,53 @@
 import React, { useState } from 'react';
 import { BookmarkIcon, UserIcon, LogoutIcon } from '@heroicons/react/solid';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate, NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; 
 import { signOut } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig'; 
-import './Header.css';
+import './HomeHeader.css'; // (ใช้ CSS เดียวกัน)
 
-export default function Header() {
+export default function HomeHeader() { 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // ดึงข้อมูล User ปัจจุบัน
+  const { currentUser } = useAuth();
 
-  // ----------------------------------------------------
-  // ✅ Logic: แสดงชื่อผู้ใช้
-  // ----------------------------------------------------
   const emailPrefix = currentUser?.email?.split('@')[0] || 'Guest';
   const profileInitial = emailPrefix.charAt(0).toUpperCase();
   const usernameDisplay = currentUser?.username || emailPrefix;
   const roleDisplay = currentUser?.role || 'N/A';
-  // ----------------------------------------------------
   
   const handleLogout = async () => {
     try {
-      await signOut(auth); // สั่ง Firebase Logout
+      await signOut(auth);
       setIsMenuOpen(false);
       navigate('/login');
     } catch (error) {
       console.error("Logout Error:", error);
-      alert("ไม่สามารถ Logout ได้");
     }
   };
 
   return (
     <div className="header-container">
-      {/* 🔹 โลโก้ (กดแล้วกลับหน้า Home) */}
       <h1 className="header-logo" onClick={() => navigate('/')}>
         CourseReviewHub
       </h1>
 
-      {/* 🔹 ส่วนขวา: Bookmark + โปรไฟล์ */}
+      {/* (ไม่มี Search Bar) */}
+
       <div className="header-icons-area">
-        <button className="header-icon-button">
-          <BookmarkIcon className="header-icon" />
-        </button>
+      
+        {/* ⬅️ แก้ปุ่ม Wishlist ให้เป็น Link ที่กดได้ */}
+        {currentUser && ( 
+          <NavLink 
+            to="/wishlist" 
+            className={({ isActive }) => 
+              isActive ? "header-icon-button active" : "header-icon-button"
+            }
+            title="Wishlist"
+          >
+            <BookmarkIcon className="header-icon" />
+          </NavLink>
+        )}
 
         <div className="profile-menu-container">
           <button 
