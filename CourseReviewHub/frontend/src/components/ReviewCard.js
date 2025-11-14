@@ -25,7 +25,8 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const isStudent = role.toLowerCase() === 'student';
   const isInstructor = role.toLowerCase() === 'instructor';
 
-console.log(review.instructor);
+console.log(review.instructorName)
+ 
   const isOwner =
     currentUser &&
     review.authorId &&
@@ -234,29 +235,30 @@ console.log(review.instructor);
               {review.content?.tips || '-'}
             </p>
           </div>
-          <div className="content-section" style={{ marginTop: '20px' }}>
-{review.instructor_reply && (
-  <div style={{
-    backgroundColor: '#f0f8ff',
-    padding: '12px',
-    borderRadius: '8px',
-    border: '1px solid #cce0ff',
-    marginTop: '10px'
-  }}>
-    <p style={{
-      fontWeight: 'bold',
-      marginBottom: '8px',
-      color: '#003366'
+        <div className="content-section" style={{ marginTop: '20px' }}>
+          
+  {review.instructor_reply && (
+    <div style={{
+      backgroundColor: '#f0f8ff',
+      padding: '12px',
+      borderRadius: '8px',
+      border: '1px solid #cce0ff',
+      marginTop: '10px'
     }}>
-      💬 ตอบกลับโดย {review.instructor?.username  || 'อาจารย์'}
-    </p>
-    <p style={{ margin: 0, color: '#333' }}>
-      {review.instructor_reply}
-    </p>
-  </div>
-)}
-
-
+      
+      <p style={{
+        fontWeight: 'bold',
+        marginBottom: '8px',
+        color: '#003366'
+      }}>
+        
+         💬 ตอบกลับโดย {review.instructorName || review.instructor?.username }
+      </p>
+      <p style={{ margin: 0, color: '#333' }}>
+        {review.instructor_reply}
+      </p>  
+    </div>
+  )}
 </div>
 
 

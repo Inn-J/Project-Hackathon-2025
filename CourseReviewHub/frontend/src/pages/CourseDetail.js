@@ -128,27 +128,33 @@ export default function CourseDetail() {
           <p className="empty-review">ยังไม่มีรีวิวในหมวดนี้</p>
         ) : (
           filteredReviews.map((review) => (
+            console.log('CourseDetail review:', review),
+          console.log('instructor:', review.instructor),
+ console.log('instructor:', review.instructor),
             <ReviewCard
-              key={review.id}
-              review={{
-                id: review.id,
-                author: review.users.username,
-                authorId: review.user_id,
-                grade: review.grade,
-                tags: review.tags || [],
-                ratings: {
-                  satisfaction: review.rating_satisfaction,
-                  difficulty: review.rating_difficulty,
-                  workload: review.rating_workload,
-                },
-                content: {
-                  prerequisite: review.content_prerequisite,
-                  prosCons: review.content_pros_cons,
-                  tips: review.content_tips,
-                },
-              }}
-            />
-          ))
+   key={review.id}
+   review={{
+     id: review.id,
+     author: review.users?.username || 'นักศึกษา',
+     authorId: review.user_id,
+     grade: review.grade,
+     tags: review.tags || [],
+     ratings: {
+       satisfaction: review.rating_satisfaction,
+       difficulty: review.rating_difficulty,
+       workload: review.rating_workload,
+     },
+     content: {
+       prerequisite: review.content_prerequisite,
+       prosCons: review.content_pros_cons,
+       tips: review.content_tips,
+     },
+     instructor_reply: review.instructor_reply,
+     instructorName: review.instructor?.username,
+ 
+   }}
+ />
+))
         )}
       </div>
     </div>

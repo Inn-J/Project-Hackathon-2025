@@ -14,11 +14,11 @@ import { useNavigate } from 'react-router-dom';
 export default function HomePage() {
   const { currentUser } = useAuth();
   const [courses, setCourses] = useState([]);
-  
+
   // 3 ตัวนี้มาจากส่วน Search ของเพื่อน
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [latestReviews, setLatestReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,9 +40,9 @@ export default function HomePage() {
         // 1. ดึงข้อมูลวิชาทั้งหมด (Public API)
         // เปลี่ยน endpoint เป็น /courses/stats
         const coursesRes = await apiClient.get('/courses/stats');
-        
+
         // เปลี่ยน setCourses เป็น coursesRes.data.courses
-        setCourses(coursesRes.data.courses); 
+        setCourses(coursesRes.data.courses);
         // ================================================================
 
         // 2. ดึงรีวิวล่าสุด (Private API - Interceptor จะแนบ Token ไปให้)
@@ -56,9 +56,9 @@ export default function HomePage() {
         setLoading(false);
       }
     };
-    
+
     if (currentUser) {
-        fetchData();
+      fetchData();
     }
   }, [currentUser]);
 
@@ -69,7 +69,7 @@ export default function HomePage() {
   if (error) {
     return <div className="homepage-container"><Header /><div className="error-state">Error: {error}</div></div>;
   }
-  
+
   // ================== FIX 2: กรองวิชาที่มีรีวิวเท่านั้น ==================
   // (นี่คือ 'if' ที่เราคุยกัน)
   const coursesWithReviews = courses.filter(course => (course.review_count ?? 0) > 0);
@@ -94,7 +94,7 @@ export default function HomePage() {
             e.preventDefault();
             goSearch();
           }}
-     >
+        >
           <input
             type="text"
             placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..."
@@ -110,27 +110,27 @@ export default function HomePage() {
 
 
       <div className="home-content-wrapper">
-        
+
         {/* ================== FIX 3: อัปเดตการแสดงผล Course ================== */}
         {/* 2. ส่วนวิชาแนะนำ (Horizontal Scroll) */}
-        
+
         {/* อัปเดต Title ให้นับจาก 'coursesWithReviews.length' */}
         <h3 className="home-section-title">วิชาที่คนสนใจเยอะ ({coursesWithReviews.length} วิชา)</h3>
-        
+
         <div className="home-course-scroll">
-          
+
           {/* เปลี่ยนไป .map() บนตัวแปร 'coursesWithReviews' */}
           {coursesWithReviews.map(course => (
-            <CourseCard 
-              key={course.id} 
-              course={{ 
-                id: course.id, 
-                code: course.course_code, 
+            <CourseCard
+              key={course.id}
+              course={{
+                id: course.id,
+                code: course.course_code,
                 title: course.name_th,
                 // เอาข้อมูลจริงมาใช้ (ไม่ใช่ค่าจำลอง)
                 difficulty: course.difficulty ?? 0,
                 reviewCount: course.review_count ?? 0
-              }} 
+              }}
             />
           ))}
         </div>
@@ -146,31 +146,31 @@ export default function HomePage() {
         {latestReviews.length > 0 ? (
           // เปลี่ยนมาใช้ .map() แทนการ hardcode [0], [1]
           latestReviews.map(review => (
-<ReviewCard 
-  key={review.id || review.review_id} 
+            console.log('HomePage review:', review),
+  console.log('instructor:', review.instructor),
+           <ReviewCard
+  key={review.id}
   review={{
-    id: review.id || review.review_id,          
-    authorId: review.user_id || review.users?.id,
-    author: review.users.username,
+    id: review.id,
+    author: review.users?.username || 'นักศึกษา',
+    authorId: review.user_id,
     grade: review.grade,
-    tags: review.tags || ['#ข้อมูลจากระบบ'],
+    tags: review.tags || [],
     ratings: {
-      satisfaction: review.rating_satisfaction || 3,
-      difficulty: review.rating_difficulty || 3,
-      workload: review.rating_workload || 3,
+      satisfaction: review.rating_satisfaction,
+      difficulty: review.rating_difficulty,
+      workload: review.rating_workload,
     },
     content: {
-      prerequisite: review.content_prerequisite || 'ไม่มีข้อมูล',
-      prosCons: review.content_pros_cons || 'ไม่มีข้อมูล',
-      tips: review.content_tips || 'ไม่มีเคล็ดลับ',
+      prerequisite: review.content_prerequisite,
+      prosCons: review.content_pros_cons,
+      tips: review.content_tips,
     },
     instructor_reply: review.instructor_reply,
-    instructor: {
-      username: review.instructor?.username 
-    }
-  }} 
-/>
+    instructorName: review.instructor?.username,
 
+  }}
+/>
           ))
         ) : (
           <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>

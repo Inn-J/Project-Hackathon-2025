@@ -97,21 +97,44 @@ console.log('username?', review.users?.username),
           </div>
         </div>
 
-        {/* CONTENT */}
-        <div className="review-content-body">
-          <div className="content-section">
-            <h4 className="content-title">สิ่งที่ควรรู้:</h4>
-            <p className="content-text">{review.content_prerequisite || '-'}</p>
-          </div>
-          <div className="content-section">
-            <h4 className="content-title">ข้อดี / ข้อเสีย:</h4>
-            <p className="content-text">{review.content_pros_cons || '-'}</p>
-          </div>
-          <div className="content-section">
-            <h4 className="content-title">Tips:</h4>
-            <p className="content-text">{review.content_tips || '-'}</p>
-          </div>
-        </div>
+       {/* CONTENT */}
+<div className="review-content-body">
+  <div className="content-section">
+    <h4 className="content-title">สิ่งที่ควรรู้:</h4>
+    <p className="content-text">{review.content_prerequisite || '-'}</p>
+  </div>
+  <div className="content-section">
+    <h4 className="content-title">ข้อดี / ข้อเสีย:</h4>
+    <p className="content-text">{review.content_pros_cons || '-'}</p>
+  </div>
+  <div className="content-section">
+    <h4 className="content-title">Tips:</h4>
+    <p className="content-text">{review.content_tips || '-'}</p>
+  </div>
+  
+  {/* ✅ เพิ่มส่วนนี้ */}
+  {review.instructor_reply && (
+  <div className="content-section" style={{ marginTop: '20px' }}>
+    <div style={{
+      backgroundColor: '#f0f8ff',
+      padding: '12px',
+      borderRadius: '8px',
+      border: '1px solid #cce0ff',
+    }}>
+      <p style={{
+        fontWeight: 'bold',
+        marginBottom: '8px',
+        color: '#003366'
+      }}>
+        💬 ตอบกลับโดย {review.instructorName || review.instructor?.username || 'อาจารย์'}
+      </p>
+      <p style={{ margin: 0, color: '#333' }}>
+        {review.instructor_reply}
+      </p>
+    </div>
+  </div>
+)}
+</div>
       </div>
     </div>
   );

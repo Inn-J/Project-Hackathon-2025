@@ -85,39 +85,52 @@ export const getCourseById = async (req, res) => {
 
     // 2) ดึงรีวิวของคอร์ส
     const { data: reviewsRaw, error: reviewErr } = await supabase
-      .from("reviews")
-      .select(`
-        *,
-        users ( username )
-      `)
-      .eq("course_id", courseId)
-      .order("created_at", { ascending: false });
+  .from("reviews")
+  .select(`
+    *,
+    users ( username ),
+    instructor_replies (
+      id,
+      reply_text,
+      created_at,
+      instructor:users!instructor_replies_instructor_id_fkey (
+        id,
+        username,
+        role
+      )
+    )
+  `)
+  .eq("course_id", courseId)
+  .order("created_at", { ascending: false });
 
-    if (reviewErr) throw reviewErr;
+if (reviewErr) throw reviewErr;
 
-    // ✅ กันตัวซ้ำโดยดูจาก review.id
-    const seen = new Set();
-    const reviews = [];
-    for (const r of reviewsRaw || []) {
-      if (!seen.has(r.id)) {
-        seen.add(r.id);
-        reviews.push(r);
-      }
-    }
+// 3) จัดรูปแบบข้อมูลรีวิว (ดึง reply ล่าสุดมาแสดง)
+//    (เราจะสร้างตัวแปร `author` ให้ Frontend ใช้ง่ายด้วย)
+const formattedReviews = (reviewsRaw || []).map(review => {
+  const latestReply = review.instructor_replies?.[0] || null;
+  return {
+    ...review,
+    author: review.users?.username || 'นิรนาม', // ส่งชื่อคนรีวิวไปที่ 'author'
+    instructor_reply: latestReply?.reply_text || null,
+    instructor: latestReply?.instructor || null, // ส่ง object อาจารย์ไปทั้งก้อน
+    instructor_reply_date: latestReply?.created_at || null,
+  };
+});
 
     // 3) ส่งกลับในรูปแบบที่หน้า React ต้องการ
-    res.status(200).json({
-      course: {
-        id: course.id,
-        course_code: course.course_code,
-        name_th: course.name_th,
-        name_en: course.name_en,
-        credit: course.credit,
-        description: course.description,
-        instructor_summary: course.instructor_summary
-      },
-      reviews
-    });
+   res.status(200).json({
+  course: {
+    id: course.id,
+    course_code: course.course_code,
+    name_th: course.name_th,
+    name_en: course.name_en,
+    credit: course.credit,
+    description: course.description,
+    instructor_summary: course.instructor_summary
+  },
+  reviews: formattedReviews // ⬅️ ส่ง reviews ใหม่ที่จัดรูปแบบแล้ว
+});
 
   } catch (error) {
     res.status(500).json({ error: error.message });
