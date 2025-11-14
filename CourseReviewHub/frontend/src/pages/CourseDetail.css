@@ -101,3 +101,73 @@
   color: #777;
   margin-top: 20px;
 }
+
+.course-meta {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;  
+  align-items: flex-start;
+  font-size: 16px;
+  color: #374151;
+}
+
+/* ชื่อหัวข้อ เช่น "ความยากเฉลี่ย" */
+.meta-label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+/* กลุ่มไอคอน */
+.avg-icon-group {
+  margin-top: 5px;
+  display: flex;
+  gap: 1px;
+}
+
+/* ไอคอนเริ่มสีเทา */
+.avg-icon {
+  width: 22px;
+  height: 22px;
+  color: #d1d5db;
+}
+
+/* ไอคอน Active ความยาก */
+.rating-orange {
+  color: #fb923c !important;
+}
+
+/* ไอคอน Active ปริมาณงาน */
+.rating-blue {
+  color: #60a5fa !important;
+}
+
+.top5-tags-container {
+  margin-top: 20px;
+}
+
+.top5-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 15px;
+}
+
+.top5-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.top5-tag {
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}

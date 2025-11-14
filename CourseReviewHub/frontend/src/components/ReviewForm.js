@@ -1,4 +1,3 @@
-// src/components/ReviewFormModal.jsx
 import React, { useEffect, useState } from "react";
 import {
   StarIcon,
@@ -24,7 +23,7 @@ export default function ReviewFormModal({
   course,                   // { course_code, name_en, name_th }
   initialReview,            // ใช้ตอน edit (object เดิมของ review)
   onClose,
-  onSubmit,                 // async (payload) => {...} (ให้ parent ยิง API)
+  onSubmit,
 }) {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
@@ -42,7 +41,7 @@ export default function ReviewFormModal({
   const [prosCons, setProsCons] = useState("");
   const [tips, setTips] = useState("");
 
-  // โหลดค่าเดิมตอน edit / เวลาเปิด modal ใหม่
+  // โหลดค่าเดิมตอน edit หรือ reset ตอนเปิด modal
   useEffect(() => {
     if (!isOpen) return;
 
@@ -51,15 +50,15 @@ export default function ReviewFormModal({
     setSubmitting(false);
 
     if (initialReview) {
-      setSatisfaction(initialReview.rating_satisfaction || 0);
-      setGrade(initialReview.grade || "");
-      setDifficulty(initialReview.rating_difficulty || 0);
-      setWorkload(initialReview.rating_workload || 0);
-      setTags(initialReview.tags || []);
+      setSatisfaction(initialReview.rating_satisfaction ?? 0);
+      setGrade(initialReview.grade ?? "");
+      setDifficulty(initialReview.rating_difficulty ?? 0);
+      setWorkload(initialReview.rating_workload ?? 0);
+      setTags(initialReview.tags ?? []);
 
-      setPrerequisite(initialReview.content_prerequisite || "");
-      setProsCons(initialReview.content_pros_cons || "");
-      setTips(initialReview.content_tips || "");
+      setPrerequisite(initialReview.content_prerequisite ?? "");
+      setProsCons(initialReview.content_pros_cons ?? "");
+      setTips(initialReview.content_tips ?? "");
     } else {
       setSatisfaction(0);
       setGrade("");
@@ -100,6 +99,7 @@ export default function ReviewFormModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!prerequisite.trim() || !prosCons.trim() || !tips.trim()) {
       setError("กรุณากรอกทั้ง สิ่งที่ควรรู้ / ข้อดีข้อเสีย / Tips ให้ครบ");
       return;
@@ -138,14 +138,16 @@ export default function ReviewFormModal({
       >
         {/* HEADER */}
         <div className="review-modal__header">
-          <div>
-            <h2 className="review-modal__title">
-              {mode === "edit" ? "แก้ไขคำแนะนำ" : "เขียนคำแนะนำ"}
-            </h2>
-            <p className="review-modal__subtitle">
-              {course?.course_code} {course?.name_en || course?.name_th}
-            </p>
-          </div>
+          <h2 className="review-modal__title">
+            {mode === "edit" ? "แก้ไขคำแนะนำ" : "เขียนคำแนะนำ"}
+          </h2>
+
+          {/* ⭐ รองรับทั้งมี course / ไม่มี course */}
+          <p className="review-modal__subtitle">
+            {course
+              ? `${course.course_code ?? ""} ${course.name_en || course.name_th || ""}`
+              : "คำแนะนำรายวิชา"}
+          </p>
         </div>
 
         {/* STEP INDICATOR */}
@@ -163,7 +165,7 @@ export default function ReviewFormModal({
 
         {error && <div className="review-modal__error">{error}</div>}
 
-        {/* BODY */}
+        {/* STEP 1 */}
         {step === 1 && (
           <div className="review-modal__body">
             {/* ความพอใจ */}
@@ -268,26 +270,21 @@ export default function ReviewFormModal({
             </section>
 
             <div className="review-modal__footer">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={handleNext}
-              >
+              <button type="button" className="btn-primary" onClick={handleNext}>
                 ถัดไป
               </button>
             </div>
           </div>
         )}
 
+        {/* STEP 2 */}
         {step === 2 && (
           <form className="review-modal__body" onSubmit={handleSubmit}>
+            {/* สิ่งที่ควรรู้ */}
             <section className="field-group">
               <div className="field-label">
                 สิ่งที่ควรรู้ <span className="required">*</span>
               </div>
-              <p className="field-hint">
-                บอกก่อนว่า วิชานี้ควรรู้อะไรมาก่อน หรือมีอะไรสำคัญที่ควรรู้ล่วงหน้า
-              </p>
               <textarea
                 className="textarea"
                 rows={4}
@@ -296,13 +293,11 @@ export default function ReviewFormModal({
               />
             </section>
 
+            {/* ข้อดีข้อเสีย */}
             <section className="field-group">
               <div className="field-label">
                 ข้อดี / ข้อเสีย <span className="required">*</span>
               </div>
-              <p className="field-hint">
-                เล่าจุดเด่น จุดด้อย บรรยากาศการสอน การให้คะแนน ฯลฯ
-              </p>
               <textarea
                 className="textarea"
                 rows={4}
@@ -311,13 +306,11 @@ export default function ReviewFormModal({
               />
             </section>
 
+            {/* Tips */}
             <section className="field-group">
               <div className="field-label">
                 Tips <span className="required">*</span>
               </div>
-              <p className="field-hint">
-                แชร์เทคนิคการเรียน การอ่านหนังสือ หรือเตรียมตัวสอบ
-              </p>
               <textarea
                 className="textarea"
                 rows={4}
@@ -335,6 +328,7 @@ export default function ReviewFormModal({
               >
                 ย้อนกลับ
               </button>
+
               <button
                 type="submit"
                 className="btn-primary"

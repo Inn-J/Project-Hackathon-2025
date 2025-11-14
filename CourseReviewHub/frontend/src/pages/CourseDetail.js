@@ -10,9 +10,7 @@ import {
   BookOpenIcon
 } from '@heroicons/react/solid';
 import Header from "../components/Header";
-
 import ReviewCard from "../components/ReviewCard";
-
 import "./CourseDetail.css";
 
 export default function CourseDetail() {
@@ -26,7 +24,24 @@ export default function CourseDetail() {
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 🔁 ฟังก์ชันโหลด course + reviews เอาไว้ใช้ซ้ำ
+  const top5Tags = React.useMemo(() => {
+  const counter = {};
+
+  reviews.forEach(r => {
+    (r.tags || []).forEach(tag => {
+      counter[tag] = (counter[tag] || 0) + 1;
+    });
+  });
+
+  // แปลงเป็น array → sort มากไปน้อย → เอาแค่ 3 อันดับบน
+  return Object.entries(counter)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([tag]) => tag);
+
+}, [reviews]);
+
+  // โหลดข้อมูลหลัก
   const reloadCourseData = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,7 +56,6 @@ export default function CourseDetail() {
     }
   }, [id]);
 
-  // ⬅️ useEffect มี dependency แค่อันเดียวพอ
   useEffect(() => {
     reloadCourseData();
   }, [reloadCourseData]);
@@ -49,43 +63,67 @@ export default function CourseDetail() {
   if (loading) return <div>กำลังโหลดข้อมูล...</div>;
   if (!course) return <div>ไม่พบข้อมูลรายวิชา</div>;
 
-  // 👉 ส่งรีวิวใหม่
+  // คำนวณค่าเฉลี่ยจากรีวิวทั้งหมด
+  const avgDifficulty = reviews.length
+    ? reviews.reduce((sum, r) => sum + (r.rating_difficulty || 0), 0) / reviews.length
+    : 0;
+
+  const avgWorkload = reviews.length
+    ? reviews.reduce((sum, r) => sum + (r.rating_workload || 0), 0) / reviews.length
+    : 0;
+
+  // แสดง icon ตามระดับเฉลี่ย (ปัดเป็น 1–5 icon)
+  const renderAvgIcons = (IconComponent, avgValue, activeClass) => {
+    const level = Math.round(avgValue); // ปัดเป็นจำนวนเต็ม
+    return (
+      <span className="avg-icon-group">
+        {[...Array(5)].map((_, i) => (
+          <IconComponent
+            key={i}
+            className={`avg-icon ${i < level ? activeClass : ""}`}
+          />
+        ))}
+      </span>
+    );
+  };
+
+  
+
+  // ส่งรีวิวใหม่
   const handleCreateReview = async (payload) => {
     await apiClient.post("/reviews", {
       ...payload,
-      course_id: Number(id), // ผูกกับวิชาปัจจุบัน
+      course_id: Number(id),
     });
 
-    // reload reviews ให้ตรงกับฐานข้อมูลทุกที่
     await reloadCourseData();
     setOpenReviewModal(false);
   };
 
-  // 👉 เวลา ReviewCard แจ้งว่ารีวิวนี้ถูกแก้ไขแล้ว (ถ้าใช้)
   const handleReviewUpdated = (updatedReview) => {
     setReviews(prev =>
       prev.map(r => (r.id === updatedReview.id ? updatedReview : r))
     );
   };
 
-  // 👉 เวลา ReviewCard ลบรีวิวนี้
   const handleReviewDeleted = (deletedId) => {
     setReviews(prev => prev.filter(r => r.id !== deletedId));
   };
 
-  // ฟิลเตอร์เกรด
+  // ฟิลเตอร์รีวิวตามหมวดเกรด
   const filteredReviews =
     filter === "all"
       ? reviews
       : reviews.filter((r) => {
-          if (filter === "ab") return ["A", "A-", "B+", "B"].includes(r.grade);
-          if (filter === "cdf") return ["C", "C-", "D", "F"].includes(r.grade);
-          return true;
-        });
+        if (filter === "ab") return ["A", "A-", "B+", "B"].includes(r.grade);
+        if (filter === "cdf") return ["C", "C-", "D", "F"].includes(r.grade);
+        return true;
+      });
 
   return (
     <>
       <Header />
+
       <div className="course-detail-container">
 
         {/* HEADER วิชา */}
@@ -93,25 +131,32 @@ export default function CourseDetail() {
           <span className="course-code">{course.course_code}</span>
           <h1 className="course-title">{course.name_th}</h1>
 
+          {/* แสดงไอคอนเฉลี่ย */}
           <div className="course-meta">
             <div className="meta-item">
               ความยากเฉลี่ย
-              <span className="value">/ 5</span>
+              {renderAvgIcons(FireIcon, avgDifficulty, "rating-orange")}
             </div>
+
             <div className="meta-item">
               ปริมาณงานเฉลี่ย
-              <span className="value">/ 5</span>
+              {renderAvgIcons(BookOpenIcon, avgWorkload, "rating-blue")}
             </div>
           </div>
 
           {/* แท็กยอดนิยม */}
-          <div className="course-tags">
-            {course.popular_tags?.map((tag) => (
-              <span key={tag} className="course-tag">
-                #{tag}
-              </span>
-            ))}
-          </div>
+          {top5Tags.length > 0 && (
+            <div className="top5-tags-container">
+              <h3 className="top5-title">แท็กยอดนิยมในรีวิว</h3>
+              <div className="top5-tags">
+                {top5Tags.map(tag => (
+                  <span key={tag} className="top5-tag">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* ปุ่มบนขวา */}
           <div className="course-header-actions">
@@ -145,24 +190,13 @@ export default function CourseDetail() {
 
         {/* FILTER */}
         <div className="review-filter">
-          <button
-            className={filter === "all" ? "active" : ""}
-            onClick={() => setFilter("all")}
-          >
+          <button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>
             ทั้งหมด
           </button>
-
-          <button
-            className={filter === "ab" ? "active" : ""}
-            onClick={() => setFilter("ab")}
-          >
-            A/B+
+          <button className={filter === "ab" ? "active" : ""} onClick={() => setFilter("ab")}>
+            A/B
           </button>
-
-          <button
-            className={filter === "cdf" ? "active" : ""}
-            onClick={() => setFilter("cdf")}
-          >
+          <button className={filter === "cdf" ? "active" : ""} onClick={() => setFilter("cdf")}>
             C/D/F
           </button>
         </div>
@@ -200,6 +234,7 @@ export default function CourseDetail() {
             ))
           )}
         </div>
+
       </div>
     </>
   );
