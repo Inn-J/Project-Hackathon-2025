@@ -4,39 +4,84 @@ import supabase from '../database/supabase.js';
 // POST /api/reviews (CREATE - สร้างรีวิวใหม่)
 // ----------------------------------------------------------------
 export const createReview = async (req, res) => {
-  // ⚠️ NOTE: req.user_id ควรมาจาก Middleware (เช่น protect) เพื่อยืนยันตัวตนผู้สร้าง
   try {
-    const userId = req.user_id; // ดึง User ID จาก Token/Session
-    const { course_id, rating, content, semester, academic_year } = req.body;
-
-    // ตรวจสอบข้อมูลที่จำเป็น
-    if (!userId || !course_id || !rating || !content) {
-      return res.status(400).json({ error: "Required fields (user_id, course_id, rating, content) are missing." });
+    const userId = req.user_id;        // มาจาก middleware checkAuth
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // ตรวจสอบว่า rating อยู่ในขอบเขตที่ถูกต้อง (เช่น 1-5)
-    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: "Rating must be a number between 1 and 5." });
+    const {
+      course_id,
+      rating_satisfaction,
+      rating_difficulty,
+      rating_workload,
+      grade,
+      tags = [],
+      content_prerequisite,
+      content_pros_cons,
+      content_tips,
+    } = req.body;
+
+    // ---- validate คร่าว ๆ ----
+    if (!course_id) {
+      return res.status(400).json({ error: "course_id is required" });
+    }
+    if (
+      !rating_satisfaction ||
+      !rating_difficulty ||
+      !rating_workload ||
+      !grade ||
+      !content_prerequisite ||
+      !content_pros_cons ||
+      !content_tips
+    ) {
+      return res.status(400).json({
+        error:
+          "rating_satisfaction, rating_difficulty, rating_workload, grade และ content ทั้งสามช่องเป็นค่าบังคับ",
+      });
     }
 
+    // (ถ้าจะเช็คช่วง 1–5)
+    const inRange = (n) => typeof n === "number" && n >= 1 && n <= 5;
+    if (
+      !inRange(rating_satisfaction) ||
+      !inRange(rating_difficulty) ||
+      !inRange(rating_workload)
+    ) {
+      return res
+        .status(400)
+        .json({ error: "คะแนนต้องอยู่ระหว่าง 1 ถึง 5" });
+    }
+
+    // ---- insert ลง Supabase ----
     const { data, error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .insert({
         user_id: userId,
         course_id,
-        rating,
-        content,
-        semester,
-        academic_year,
+        rating_satisfaction,
+        rating_difficulty,
+        rating_workload,
+        grade,
+        tags,
+        content_prerequisite,
+        content_pros_cons,
+        content_tips,
       })
-      .select();
+      .select(
+        `*,
+         users ( username )`
+      )
+      .single();
 
     if (error) throw error;
 
-    res.status(201).json({ message: "✅ Review created successfully", review: data[0] });
-
+    return res
+      .status(201)
+      .json({ message: "✅ Review created successfully", ...data });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("createReview error:", error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -359,6 +404,35 @@ export const voteReviewHelpful = async (req, res) => {
   } catch (error) {
     console.error("voteReviewHelpful error:", error);
     return res.status(500).json({ error: error.message });
+  }
+};
+
+export const getMyHelpfulVote = async (req, res) => {
+  try {
+    const userId = req.user_id;
+    const reviewId = req.params.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    const { data, error } = await supabase
+      .from('helpful_votes')
+      .select('isHelpful')
+      .eq('review_id', reviewId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    // ถ้าไม่เคยโหวตเลย → isHelpful = null
+    return res.status(200).json({
+      isHelpful: data ? data.isHelpful : null,
+    });
+
+  } catch (err) {
+    console.error("getMyHelpfulVote error:", err);
+    return res.status(500).json({ error: err.message });
   }
 };
 

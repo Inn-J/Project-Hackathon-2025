@@ -221,3 +221,10 @@
 .dropdown-item:hover {
   background: #f8f9fa;
 }
+
+.review-footer-button.active {
+  background-color: #5b21b6;
+  border-color: #5b21b6;
+  color: #ffffff;
+  font-weight: 600;
+}

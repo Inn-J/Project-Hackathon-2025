@@ -1,0 +1,215 @@
+/* src/components/ReviewFormModal.css */
+
+.review-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.review-modal__container {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 28px 24px;
+  width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+}
+
+.review-modal__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.review-modal__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.review-modal__subtitle {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+.review-modal__steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 16px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #9ca3af;
+}
+
+.step-item.active {
+  color: #4c1d95;
+  font-weight: 600;
+}
+
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: #f9fafb;
+}
+
+.step-item.active .step-circle {
+  background: #4c1d95;
+  border-color: #4c1d95;
+  color: #fff;
+}
+
+.step-arrow {
+  color: #d1d5db;
+}
+
+.review-modal__error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.review-modal__body {
+  margin-top: 4px;
+}
+
+.field-group {
+  margin-bottom: 18px;
+}
+
+.field-label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.required {
+  color: #dc2626;
+}
+
+.field-hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.rating-row,
+.grade-row,
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.icon-button {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.icon-button.active {
+  background: #ede9fe;
+  border-color: #7c3aed;
+  color: #4c1d95;
+}
+
+.icon-20 {
+  width: 20px;
+  height: 20px;
+}
+
+.pill-button {
+  border-radius: 999px;
+  padding: 6px 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.pill-button.active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+.tag-pill {
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.tag-pill.active {
+  background: #f97316;
+  border-color: #ea580c;
+  color: #fff;
+}
+
+.textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  min-height: 100px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 1px #7c3aed20;
+}
+
+.review-modal__footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-primary,
+.btn-secondary {
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: #f97316;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+}

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getLatestReviews, createReview, getReviewsByCourse, getReviewById, updateReview, deleteReview,getMyReviews,voteReviewHelpful } from '../controller/reviewController.js';
+import { getLatestReviews, createReview, getReviewsByCourse, getReviewById, updateReview, deleteReview,getMyReviews,voteReviewHelpful,getMyHelpfulVote } from '../controller/reviewController.js';
 import checkAuth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -9,9 +9,10 @@ router.get('/latest', getLatestReviews);
 router.get('/course/:courseId', getReviewsByCourse); 
 router.get('/my',checkAuth ,getMyReviews);
 router.get('/:id', getReviewById);
-router.post('/', createReview); 
+router.post('/',checkAuth, createReview); 
 router.patch('/:id', updateReview);
 router.delete('/:id',checkAuth, deleteReview);
 router.post('/:id/helpful', checkAuth, voteReviewHelpful);
+router.get('/:id/helpful/me', checkAuth, getMyHelpfulVote);
 
 export default router;
