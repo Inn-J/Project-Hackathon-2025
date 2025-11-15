@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import apiClient from "../services/axiosConfig";
 import { useAuth } from "../context/AuthContext";
 import ReviewForm from "../components/ReviewForm";
+import WishlistForm from "../components/WishlistForm";
 import {
   StarIcon,
   FireIcon,
@@ -21,40 +22,60 @@ export default function CourseDetail() {
   const [instructorSummary, setInstructorSummary] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [openWishlistModal, setOpenWishlistModal] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false); 
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const top5Tags = React.useMemo(() => {
-  const counter = {};
+    const counter = {};
 
-  reviews.forEach(r => {
-    (r.tags || []).forEach(tag => {
-      counter[tag] = (counter[tag] || 0) + 1;
+    reviews.forEach(r => {
+      (r.tags || []).forEach(tag => {
+        counter[tag] = (counter[tag] || 0) + 1;
+      });
     });
-  });
 
-  // แปลงเป็น array → sort มากไปน้อย → เอาแค่ 3 อันดับบน
-  return Object.entries(counter)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([tag]) => tag);
+    // แปลงเป็น array → sort มากไปน้อย → เอาแค่ 3 อันดับบน
+    return Object.entries(counter)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([tag]) => tag);
 
-}, [reviews]);
+  }, [reviews]);
 
   // โหลดข้อมูลหลัก
   const reloadCourseData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await apiClient.get(`/courses/${id}`);
-      setCourse(res.data.course);
-      setInstructorSummary(res.data.instructor_summary);
-      setReviews(res.data.reviews || []);
+
+      const [courseRes, wishlistRes] = await Promise.all([
+        apiClient.get(`/courses/${id}`),
+        currentUser
+          ? apiClient.get("/wishlist/my")   // ✅ ใช้ getMyWishlist
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      setCourse(courseRes.data.course);
+      setInstructorSummary(courseRes.data.instructor_summary);
+      setReviews(courseRes.data.reviews || []);
+
+      // หา item ที่เป็นคอร์สนี้
+      const item = (wishlistRes.data || []).find(
+        (w) => String(w.course_id) === String(id)
+      );
+
+      if (item) {
+        setInWishlist(true);
+      } else {
+        setInWishlist(false);
+      }
     } catch (err) {
       console.error("Error loading course detail:", err);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, currentUser]);
 
   useEffect(() => {
     reloadCourseData();
@@ -131,6 +152,7 @@ export default function CourseDetail() {
           <span className="course-code">{course.course_code}</span>
           <h1 className="course-title">{course.name_th}</h1>
 
+
           {/* แสดงไอคอนเฉลี่ย */}
           <div className="course-meta">
             <div className="meta-item">
@@ -160,7 +182,16 @@ export default function CourseDetail() {
 
           {/* ปุ่มบนขวา */}
           <div className="course-header-actions">
-            <button className="btn-save">บันทึก</button>
+            <button
+              className={`btn-save ${inWishlist ? "btn-save--active" : ""}`}
+              onClick={() => {
+                if (!inWishlist) setOpenWishlistModal(true);
+              }}
+              disabled={inWishlist}
+            >
+              {inWishlist ? "อยู่ใน Wishlist แล้ว" : "Wishlist"}
+            </button>
+
             <button
               className="btn-add-review"
               onClick={() => setOpenReviewModal(true)}
@@ -233,6 +264,11 @@ export default function CourseDetail() {
               />
             ))
           )}
+          <WishlistForm
+            isOpen={openWishlistModal}
+            course={course}
+            onClose={() => setOpenWishlistModal(false)}
+          />
         </div>
 
       </div>

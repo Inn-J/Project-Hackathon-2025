@@ -16,6 +16,7 @@ export default function WishlistCard({ item, onRemove }) {
       onRemove(course.id); // course.id คือ course_id
     }
   };
+  
 
   return (
     <div className="wishlist-card">
@@ -29,7 +30,6 @@ export default function WishlistCard({ item, onRemove }) {
           <TrashIcon width={24} height={24} />
         </button>
       </div>
-      
       {item.personal_note && (
         <div className="personal-note-box">
           <strong>📝 บันทึกส่วนตัว:</strong>
@@ -38,11 +38,11 @@ export default function WishlistCard({ item, onRemove }) {
       )}
 
       <div className="wishlist-card-footer">
-        <button onClick={() => navigate(`/course/${course.id}`)} className="details-button">
+        <button onClick={() => navigate(`/courses/${course.id}`)} className="details-button">
           ดูรายละเอียด
         </button>
         <button className="edit-note-button">
-          บันทึกส่วนตัว ▾
+          แก้ไขบันทึกส่วนตัว ▾
         </button>
       </div>
     </div>

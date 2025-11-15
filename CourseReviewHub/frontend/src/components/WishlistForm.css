@@ -1,0 +1,60 @@
+/* src/components/WishlistModal.css */
+
+.wishlist-modal {
+  max-width: 640px;
+}
+
+.wishlist-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.wishlist-course {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.wishlist-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.wishlist-hint {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.wishlist-textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  padding: 10px 5px;
+  resize: vertical;
+  min-height: 120px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: #f7f7f7;
+  margin-top:  10px;
+}
+
+.wishlist-error {
+  margin-top: 8px;
+  color: #c0392b;
+  font-size: 0.9rem;
+}
+
+.wishlist-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.wishlist-save-btn {
+  min-width: 140px;
+  border-radius: 999px;
+}
