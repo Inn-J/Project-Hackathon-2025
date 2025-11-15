@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SearchIcon, BookmarkIcon, UserIcon, LogoutIcon } from '@heroicons/react/solid';
-import { useNavigate, NavLink } from 'react-router-dom'; // ⬅️ 1. Import NavLink
+import { useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../services/firebaseConfig';
@@ -8,8 +8,9 @@ import './Header.css';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [query, setQuery] = useState(""); // สำหรับ search
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // ⬅️ 2. ดึง User
+  const { currentUser } = useAuth();
 
   const emailPrefix = currentUser?.email?.split('@')[0] || 'Guest';
   const profileInitial = emailPrefix.charAt(0).toUpperCase(); 
@@ -26,6 +27,14 @@ export default function Header() {
     }
   };
 
+  // ฟังก์ชัน search กด Enter
+  const handleSearchKey = (e) => {
+    if (e.key === "Enter" && query.trim() !== "") {
+     navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      setQuery(""); // ล้าง input หลัง search
+    }
+  };
+
   return (
     <div className="header-container">
       <h1 className="header-logo" onClick={() => navigate('/')}>CourseReviewHub</h1>
@@ -35,13 +44,14 @@ export default function Header() {
           type="text"
           placeholder="ค้นหารหัสวิชา, ชื่อวิชา..."
           className="header-search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearchKey}
         />
         <SearchIcon className="header-search-icon" />
       </div>
 
       <div className="header-icons-area">
-      
-        {/* ⬅️ 3. แก้ปุ่ม Wishlist ให้เป็น Link ที่กดได้ */}
         {currentUser && ( 
           <NavLink 
             to="/wishlist" 
@@ -55,33 +65,33 @@ export default function Header() {
         )}
         
         <div className="profile-menu-container">
-            <button 
-              className="header-icon-button profile-button" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <span className="profile-initial">{profileInitial}</span>
-            </button>
+          <button 
+            className="header-icon-button profile-button" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <span className="profile-initial">{profileInitial}</span>
+          </button>
 
-            {isMenuOpen && (
-              <div className="profile-dropdown">
-                  <div className="profile-dropdown-user">
-                      <p className="profile-username">{usernameDisplay}</p>
-                      <p className="profile-role">Role: {roleDisplay}</p>
-                  </div>
-                  <button 
-                      className="dropdown-item"
-                      onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
-                  >
-                      <UserIcon className="dropdown-icon" /> My Profile
-                  </button>
-                  <button 
-                      className="dropdown-item logout-item"
-                      onClick={handleLogout}
-                  >
-                      <LogoutIcon className="dropdown-icon" /> Logout
-                  </button>
+          {isMenuOpen && (
+            <div className="profile-dropdown">
+              <div className="profile-dropdown-user">
+                <p className="profile-username">{usernameDisplay}</p>
+                <p className="profile-role">Role: {roleDisplay}</p>
               </div>
-            )}
+              <button 
+                className="dropdown-item"
+                onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
+              >
+                <UserIcon className="dropdown-icon" /> My Profile
+              </button>
+              <button 
+                className="dropdown-item logout-item"
+                onClick={handleLogout}
+              >
+                <LogoutIcon className="dropdown-icon" /> Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,104 +1,204 @@
-// src/pages/SearchPage.jsx
-import React from 'react';
-import Header from '../components/HomeHeader';
+// frontend/src/pages/SearchPage.jsx
+
+import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
 import CourseCard from '../components/CourseCard';
 import { useLocation } from 'react-router-dom';
+import apiClient from '../services/axiosConfig';
 import './SearchPage.css';
-
-// ✅ ใช้ mockCourses ให้ตรงกับตาราง courses ในรูป
-const mockCourses = [
-  { id: 1, code: '100200', title: 'JavaScript',             difficulty: 3, reviewCount: 12 },
-  { id: 2, code: '261101', title: 'Intro to Comp Eng',      difficulty: 2, reviewCount: 5  },
-  { id: 3, code: '960100', title: 'Art of Living',          difficulty: 1, reviewCount: 8  },
-  { id: 4, code: '001101', title: 'Fundamental English 1',  difficulty: 2, reviewCount: 10 },
-  { id: 6, code: '001102', title: 'Fundamental English 2',  difficulty: 3, reviewCount: 7  },
-];
 
 export default function SearchPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const q = (params.get('q') || '').trim();
 
-  // ✅ filter จาก mockCourses ตาม q (รหัสวิชา หรือชื่อวิชา)
-  const results = q
-    ? mockCourses.filter(c =>
-        c.code.toLowerCase().includes(q.toLowerCase()) ||
-        c.title.toLowerCase().includes(q.toLowerCase())
-      )
-    : mockCourses;
+  const [allCourses, setAllCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [sortBy, setSortBy] = useState('review_count');
+  const [difficultyFilter, setDifficultyFilter] = useState(null);
+  const [workloadFilter, setWorkloadFilter] = useState(null);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/courses/stats');
+        setAllCourses(response.data.courses || []);
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        setError("ไม่สามารถโหลดข้อมูลวิชาได้");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  // -----------------------------
+  // ฟิลเตอร์แบบแก้ง่าย — ใช้ difficulty & workload
+  // -----------------------------
+  const filteredAndSortedResults = allCourses
+    .filter(c =>
+      q
+        ? (c.course_code || '').toLowerCase().includes(q.toLowerCase()) ||
+          (c.name_th || '').toLowerCase().includes(q.toLowerCase())
+        : true
+    )
+    // ⭐ ใช้ c.difficulty (ไม่ใช่ difficulty_avg)
+    .filter(c =>
+      difficultyFilter ? Math.round(c.difficulty || 0) === difficultyFilter : true
+    )
+    // ⭐ ใช้ c.workload (ไม่ใช่ workload_avg)
+    .filter(c => {
+      if (!workloadFilter) return true;
+      const rounded = Math.round(c.workload || 0);
+
+      if (workloadFilter === 'low') return rounded === 1 || rounded === 2;
+      if (workloadFilter === 'medium') return rounded === 3;
+      if (workloadFilter === 'high') return rounded === 4 || rounded === 5;
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'difficulty_asc') {
+        return (a.difficulty || 0) - (b.difficulty || 0);
+      }
+      if (sortBy === 'workload_asc') {
+        return (a.workload || 0) - (b.workload || 0);
+      }
+      return (b.review_count || 0) - (a.review_count || 0);
+    });
+
+  const toggleFilter = (setter, value) => {
+    setter(prev => (prev === value ? null : value));
+  };
 
   return (
-    <div className="searchpage-container">
+    <>
+      <Header />
 
-      <div className="search-content-wrapper">
-        {/* ----- Sidebar ตัวกรอง (ยังเป็น mock / ยังไม่ต้องมี logic ก็ได้) ----- */}
-        <aside className="search-sidebar">
-          <div className="filter-box">
-            <h3 className="filter-title">ตัวกรอง</h3>
+      <style>{`
+        .sort-button.active, 
+        .filter-difficulty-button.active,
+        .filter-workload-button.active {
+          background-color: #6D28D9;
+          color: white;
+          border-color: #6D28D9;
+        }
+      `}</style>
 
-            <div className="filter-group">
-              <h4 className="filter-group-title">เรียงตาม</h4>
-              <div className="sort-buttons">
-                <button className="sort-button">ยอดรีวิวมากสุด</button>
-                <button className="sort-button">ความยากน้อยสุด</button>
-                <button className="sort-button">ปริมาณงานน้อยสุด</button>
+      <div className="searchpage-container">
+        <div className="search-content-wrapper">
+
+          <aside className="search-sidebar">
+            <div className="filter-box">
+              <h3 className="filter-title">ตัวกรอง</h3>
+
+              <div className="filter-group">
+                <h4 className="filter-group-title">เรียงตาม</h4>
+                <div className="sort-buttons">
+                  <button
+                    className={`sort-button ${sortBy === 'review_count' ? 'active' : ''}`}
+                    onClick={() => setSortBy('review_count')}
+                  >
+                    ยอดรีวิวมากสุด
+                  </button>
+                  <button
+                    className={`sort-button ${sortBy === 'difficulty_asc' ? 'active' : ''}`}
+                    onClick={() => setSortBy('difficulty_asc')}
+                  >
+                    ความยากน้อยสุด
+                  </button>
+                  <button
+                    className={`sort-button ${sortBy === 'workload_asc' ? 'active' : ''}`}
+                    onClick={() => setSortBy('workload_asc')}
+                  >
+                    ปริมาณงานน้อยสุด
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="filter-group">
-              <h4 className="filter-group-title">ระดับความยาก</h4>
-              <div className="filter-difficulty-buttons">
-                <button className="filter-difficulty-button">1 🔥</button>
-                <button className="filter-difficulty-button">2 🔥</button>
-                <button className="filter-difficulty-button">3 🔥</button>
-                <button className="filter-difficulty-button">4 🔥</button>
-                <button className="filter-difficulty-button">5 🔥</button>
+              <div className="filter-group">
+                <h4 className="filter-group-title">ระดับความยาก</h4>
+                <div className="filter-difficulty-buttons">
+                  {[1, 2, 3, 4, 5].map(level => (
+                    <button
+                      key={level}
+                      className={`filter-difficulty-button ${difficultyFilter === level ? 'active' : ''}`}
+                      onClick={() => toggleFilter(setDifficultyFilter, level)}
+                    >
+                      {level} 🔥
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              <div className="filter-group">
+                <h4 className="filter-group-title">ปริมาณงาน</h4>
+                <div className="workload-buttons">
+                  <button
+                    className={`filter-workload-button ${workloadFilter === 'low' ? 'active' : ''}`}
+                    onClick={() => toggleFilter(setWorkloadFilter, 'low')}
+                  >
+                    น้อย
+                  </button>
+                  <button
+                    className={`filter-workload-button ${workloadFilter === 'medium' ? 'active' : ''}`}
+                    onClick={() => toggleFilter(setWorkloadFilter, 'medium')}
+                  >
+                    ปานกลาง
+                  </button>
+                  <button
+                    className={`filter-workload-button ${workloadFilter === 'high' ? 'active' : ''}`}
+                    onClick={() => toggleFilter(setWorkloadFilter, 'high')}
+                  >
+                    มาก
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </aside>
+
+          <main className="search-results-main">
+            <h2 className="search-results-title">
+              {q
+                ? `ผลการค้นหา: "${q}" (พบ ${filteredAndSortedResults.length} รายวิชา)`
+                : `รายวิชาทั้งหมด (${filteredAndSortedResults.length} รายวิชา)`}
+            </h2>
+
+            <div className="search-results-grid">
+              {loading ? (
+                <p>กำลังโหลด...</p>
+              ) : error ? (
+                <p>{error}</p>
+              ) : filteredAndSortedResults.length > 0 ? (
+                filteredAndSortedResults.map(course => (
+                  <CourseCard
+                    key={course.id}
+                    course={{
+                      id: course.id,
+                      code: course.course_code,
+                      title: course.name_th,
+                      difficulty: course.difficulty ?? 0,
+                      reviewCount: course.review_count ?? 0
+                    }}
+                  />
+                ))
+              ) : (
+                <p>ไม่พบวิชาที่ตรงกับคำค้นหา</p>
+              )}
             </div>
 
-            <div className="filter-group">
-              <h4 className="filter-group-title">ปริมาณงาน</h4>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox" />
-                <span>น้อย</span>
-              </label>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox" />
-                <span>ปานกลาง</span>
-              </label>
-              <label className="filter-checkbox-label">
-                <input type="checkbox" className="filter-checkbox" />
-                <span>มาก</span>
-              </label>
+            <div className="search-load-more">
+              <button className="load-more-button">โหลดเพิ่มเติม</button>
             </div>
-          </div>
-        </aside>
+          </main>
 
-        {/* ----- ส่วนผลลัพธ์ ----- */}
-        <main className="search-results-main">
-          <h2 className="search-results-title">
-            {q
-              ? `ผลการค้นหา: "${q}" (พบ ${results.length} รายวิชา)`
-              : `รายวิชาทั้งหมด (${results.length} รายวิชา)`}
-          </h2>
-
-          <div className="search-results-grid">
-            {results.length > 0 ? (
-              results.map(course => (
-                <CourseCard key={course.id} course={course} />
-              ))
-            ) : (
-              <p>ไม่พบวิชาที่ตรงกับคำค้นหา</p>
-            )}
-          </div>
-
-          <div className="search-load-more">
-            <button className="load-more-button">
-              โหลดเพิ่มเติม
-            </button>
-          </div>
-        </main>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

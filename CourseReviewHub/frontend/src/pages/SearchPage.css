@@ -219,3 +219,95 @@
 .filter-checkbox {
   accent-color: #3B82F6; /* เปลี่ยนสี checkbox เป็นฟ้า */
 }
+.filter-group {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.filter-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.filter-group-title {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+/* --- (CSS สำหรับปุ่ม "เรียงตาม") --- */
+.sort-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sort-button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: left;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sort-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* --- (CSS สำหรับปุ่ม "ความยาก") --- */
+.filter-difficulty-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.filter-difficulty-button {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-difficulty-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* --- (CSS สำหรับปุ่ม "ปริมาณงาน" ที่คุณขอ) --- */
+.workload-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-workload-button {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  text-align: left;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-workload-button:hover {
+  background-color: #f0f0f0;
+}
+
+/* --- (CSS สำหรับปุ่ม Active สีม่วง) --- */
+/* (อันนี้คุณอาจจะมีแล้วใน <style> แต่เอามาไว้ใน CSS ดีกว่า) */
+
+.sort-button.active,
+.filter-difficulty-button.active,
+.filter-workload-button.active {
+  background-color: #6D28D9; /* สีม่วง */
+  color: white;
+  border-color: #6D28D9;
+  font-weight: 600;
+}
