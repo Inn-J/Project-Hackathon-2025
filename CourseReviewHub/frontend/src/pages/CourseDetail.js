@@ -3,10 +3,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import apiClient from "../services/axiosConfig";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext"; // ⬅️ เพิ่มตรงนี้
 import ReviewForm from "../components/ReviewForm";
 import WishlistForm from "../components/WishlistForm";
 import {
-  StarIcon,
   FireIcon,
   BookOpenIcon
 } from '@heroicons/react/solid';
@@ -17,15 +17,22 @@ import "./CourseDetail.css";
 export default function CourseDetail() {
   const { id } = useParams();
   const { currentUser } = useAuth();
+  const {
+    isCourseInWishlist,
+    addToWishlist,
+    removeFromWishlist,
+  } = useWishlist(); // ⬅️ ดึงจาก Context
 
   const [course, setCourse] = useState(null);
   const [instructorSummary, setInstructorSummary] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState("all");
   const [openWishlistModal, setOpenWishlistModal] = useState(false);
-  const [inWishlist, setInWishlist] = useState(false); 
   const [openReviewModal, setOpenReviewModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // ✅ เช็คจาก context แทน state local
+  const inWishlist = isCourseInWishlist(id);
 
   const top5Tags = React.useMemo(() => {
     const counter = {};
@@ -36,46 +43,26 @@ export default function CourseDetail() {
       });
     });
 
-    // แปลงเป็น array → sort มากไปน้อย → เอาแค่ 3 อันดับบน
     return Object.entries(counter)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([tag]) => tag);
-
   }, [reviews]);
 
   // โหลดข้อมูลหลัก
   const reloadCourseData = useCallback(async () => {
     try {
       setLoading(true);
-
-      const [courseRes, wishlistRes] = await Promise.all([
-        apiClient.get(`/courses/${id}`),
-        currentUser
-          ? apiClient.get("/wishlist/my")   // ✅ ใช้ getMyWishlist
-          : Promise.resolve({ data: [] }),
-      ]);
-
+      const courseRes = await apiClient.get(`/courses/${id}`);
       setCourse(courseRes.data.course);
       setInstructorSummary(courseRes.data.instructor_summary);
       setReviews(courseRes.data.reviews || []);
-
-      // หา item ที่เป็นคอร์สนี้
-      const item = (wishlistRes.data || []).find(
-        (w) => String(w.course_id) === String(id)
-      );
-
-      if (item) {
-        setInWishlist(true);
-      } else {
-        setInWishlist(false);
-      }
     } catch (err) {
       console.error("Error loading course detail:", err);
     } finally {
       setLoading(false);
     }
-  }, [id, currentUser]);
+  }, [id]);
 
   useEffect(() => {
     reloadCourseData();
@@ -84,7 +71,7 @@ export default function CourseDetail() {
   if (loading) return <div>กำลังโหลดข้อมูล...</div>;
   if (!course) return <div>ไม่พบข้อมูลรายวิชา</div>;
 
-  // คำนวณค่าเฉลี่ยจากรีวิวทั้งหมด
+  // ค่าเฉลี่ยจากรีวิว
   const avgDifficulty = reviews.length
     ? reviews.reduce((sum, r) => sum + (r.rating_difficulty || 0), 0) / reviews.length
     : 0;
@@ -93,9 +80,8 @@ export default function CourseDetail() {
     ? reviews.reduce((sum, r) => sum + (r.rating_workload || 0), 0) / reviews.length
     : 0;
 
-  // แสดง icon ตามระดับเฉลี่ย (ปัดเป็น 1–5 icon)
   const renderAvgIcons = (IconComponent, avgValue, activeClass) => {
-    const level = Math.round(avgValue); // ปัดเป็นจำนวนเต็ม
+    const level = Math.round(avgValue);
     return (
       <span className="avg-icon-group">
         {[...Array(5)].map((_, i) => (
@@ -108,7 +94,38 @@ export default function CourseDetail() {
     );
   };
 
-  
+  // ✅ ฟังก์ชันเรียกตอนกด Save ใน WishlistForm
+  const handleWishlistSave = async (noteText) => {
+    try {
+      await addToWishlist(Number(course.id), noteText || "");
+      setOpenWishlistModal(false);
+      alert("เพิ่มลง Wishlist แล้ว ✓");
+    } catch (err) {
+      alert(err.response?.data?.error || "เพิ่มลง Wishlist ไม่สำเร็จ");
+    }
+  };
+
+  // ✅ toggle ถ้ากดบนปุ่มเขียวซ้ำ → ลบออก
+  const handleWishlistButtonClick = async () => {
+    if (!currentUser) {
+      alert("กรุณาเข้าสู่ระบบก่อนใช้งาน Wishlist");
+      return;
+    }
+
+    if (inWishlist) {
+      // ลบออก
+      if (!window.confirm("ต้องการเอาวิชาออกจาก Wishlist หรือไม่?")) return;
+      try {
+        await removeFromWishlist(Number(id));
+        alert("ลบออกจาก Wishlist แล้ว");
+      } catch (err) {
+        alert("ลบ Wishlist ไม่สำเร็จ");
+      }
+    } else {
+      // ยังไม่อยู่ → เปิดฟอร์มกรอก note
+      setOpenWishlistModal(true);
+    }
+  };
 
   // ส่งรีวิวใหม่
   const handleCreateReview = async (payload) => {
@@ -131,15 +148,14 @@ export default function CourseDetail() {
     setReviews(prev => prev.filter(r => r.id !== deletedId));
   };
 
-  // ฟิลเตอร์รีวิวตามหมวดเกรด
   const filteredReviews =
     filter === "all"
       ? reviews
       : reviews.filter((r) => {
-        if (filter === "ab") return ["A", "A-", "B+", "B"].includes(r.grade);
-        if (filter === "cdf") return ["C", "C-", "D", "F"].includes(r.grade);
-        return true;
-      });
+          if (filter === "ab") return ["A", "A-", "B+", "B"].includes(r.grade);
+          if (filter === "cdf") return ["C", "C-", "D", "F"].includes(r.grade);
+          return true;
+        });
 
   return (
     <>
@@ -152,8 +168,6 @@ export default function CourseDetail() {
           <span className="course-code">{course.course_code}</span>
           <h1 className="course-title">{course.name_th}</h1>
 
-
-          {/* แสดงไอคอนเฉลี่ย */}
           <div className="course-meta">
             <div className="meta-item">
               ความยากเฉลี่ย
@@ -166,7 +180,6 @@ export default function CourseDetail() {
             </div>
           </div>
 
-          {/* แท็กยอดนิยม */}
           {top5Tags.length > 0 && (
             <div className="top5-tags-container">
               <h3 className="top5-title">แท็กยอดนิยมในรีวิว</h3>
@@ -183,13 +196,10 @@ export default function CourseDetail() {
           {/* ปุ่มบนขวา */}
           <div className="course-header-actions">
             <button
-              className={`btn-save ${inWishlist ? "btn-save--active" : ""}`}
-              onClick={() => {
-                if (!inWishlist) setOpenWishlistModal(true);
-              }}
-              disabled={inWishlist}
+              className={`btn-save ${inWishlist ? "in-wishlist" : ""}`}
+              onClick={handleWishlistButtonClick}
             >
-              {inWishlist ? "อยู่ใน Wishlist แล้ว" : "Wishlist"}
+              {inWishlist ? "✓ อยู่ใน Wishlist แล้ว" : "Wishlist"}
             </button>
 
             <button
@@ -209,7 +219,6 @@ export default function CourseDetail() {
           </div>
         </div>
 
-        {/* INSTRUCTOR SUMMARY */}
         {instructorSummary && (
           <div className="instructor-box">
             <p>
@@ -264,10 +273,13 @@ export default function CourseDetail() {
               />
             ))
           )}
+
+          {/* Modal Wishlist */}
           <WishlistForm
             isOpen={openWishlistModal}
             course={course}
             onClose={() => setOpenWishlistModal(false)}
+            onSave={handleWishlistSave}  // ⬅️ ใช้ addToWishlist ผ่าน callback
           />
         </div>
 

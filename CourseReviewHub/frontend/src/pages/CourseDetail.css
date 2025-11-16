@@ -59,13 +59,28 @@
   cursor: pointer;
   font-size: 14px;
 }
-
-.btn-save--active {
-  background-color: #4caf50;
-  border-color: #4caf50;
-  color: #ffffff;
-  cursor: default;
+.btn-save {
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #ddd;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
 }
+
+.btn-save.in-wishlist {
+  background: #28a745 !important; 
+  color: white !important;
+  border: 1px solid #1e7e34;
+}
+
+.btn-save.in-wishlist:hover {
+  background: #218838 !important;
+}
+
+
 
 .btn-save:disabled {
   opacity: 0.8;

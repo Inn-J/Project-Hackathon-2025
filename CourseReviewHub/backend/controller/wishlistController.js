@@ -87,6 +87,31 @@ export const addWishlist = async (req, res) => {
   }
 };
 
+export const updateWishlistNote = async (req, res) => {
+  try {
+    const userId = req.user_id;
+    const courseId = Number(req.params.courseId);
+    const { personal_note } = req.body;
+
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { data, error } = await supabase
+      .from("wishlist")
+      .update({ personal_note: personal_note || null })
+      .eq("user_id", userId)
+      .eq("course_id", courseId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ message: "Updated note", item: data });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // ----------------------------------------------------------------
 // DELETE /api/wishlist/:courseId - (3) ลบวิชาออกจาก Wishlist
 // ----------------------------------------------------------------

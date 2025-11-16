@@ -1,13 +1,12 @@
+// src/components/WishlistForm.jsx (หรือ WishlistModal.jsx)
 import React, { useEffect, useState } from "react";
-import apiClient from "../services/axiosConfig";
-import "./WishlistForm.css";   // เดี๋ยวสร้างต่อด้านล่าง
+import "./WishlistForm.css";
 
-export default function WishlistModal({ isOpen, onClose, course }) {
+export default function WishlistForm({ isOpen, onClose, course, onSave }) {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // รีเซ็ตฟอร์มทุกครั้งที่เปิด modal
   useEffect(() => {
     if (isOpen) {
       setNote("");
@@ -24,25 +23,11 @@ export default function WishlistModal({ isOpen, onClose, course }) {
     setError("");
 
     try {
-      await apiClient.post("/wishlist", {
-        course_id: Number(course.id),
-        // ไม่บังคับกรอก note ถ้าว่างส่ง null ไป
-        personal_note: note.trim() === "" ? null : note.trim(),
-      });
-
-      alert("บันทึกวิชาไว้ใน Wishlist แล้ว ✨");
-      onClose?.();
+      await onSave?.(note);
+      // onSave จะจัดการปิด modal เอง หรือเราจะปิดที่นี่ก็ได้
     } catch (err) {
-      console.error("add wishlist error:", err.response?.data || err);
-
-      if (err.response?.status === 409) {
-        alert("วิชานี้อยู่ใน Wishlist ของคุณแล้ว");
-        onClose?.();
-      } else if (err.response?.status === 401) {
-        setError("กรุณาเข้าสู่ระบบก่อนบันทึกวิชา");
-      } else {
-        setError("ไม่สามารถบันทึก Wishlist ได้ กรุณาลองใหม่อีกครั้ง");
-      }
+      console.error("add wishlist error:", err);
+      setError(err?.message || "ไม่สามารถบันทึก Wishlist ได้");
     } finally {
       setSubmitting(false);
     }
