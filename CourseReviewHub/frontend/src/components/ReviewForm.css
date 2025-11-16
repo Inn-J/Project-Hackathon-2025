@@ -152,9 +152,10 @@
 }
 
 .pill-button.active {
-  background: #111827;
-  color: #ffffff;
-  border-color: #111827;
+  background: #ede9fe;
+  color: #000000;
+    border-color: #7c3aed;
+font-weight: 600;
 }
 
 .tag-pill {

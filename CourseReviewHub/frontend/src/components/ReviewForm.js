@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import {
-  StarIcon,
-  FireIcon,
-  BookOpenIcon,
+  StarIcon as StarSolid,
+  FireIcon as FireSolid,
+  BookOpenIcon as BookSolid,
 } from "@heroicons/react/solid";
+import {
+  StarIcon as StarOutline,
+  FireIcon as FireOutline,
+  BookOpenIcon as BookOutline,
+} from "@heroicons/react/outline";
 import "./ReviewForm.css";
 
-const GRADE_OPTIONS = ["A", "B+", "B", "C+", "C", "D", "F"];
+const GRADE_OPTIONS = ["A", "B+", "B", "C+", "C", "D", "F","-"];
 const TAG_OPTIONS = [
   "คำสอนดีมาก",
   "งานเยอะ",
@@ -174,18 +179,21 @@ export default function ReviewFormModal({
                 ความพอใจโดยรวม <span className="required">*</span>
               </div>
               <div className="rating-row">
-                {[1, 2, 3, 4, 5].map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    className={`icon-button ${
-                      satisfaction >= v ? "active" : ""
-                    }`}
-                    onClick={() => setSatisfaction(v)}
-                  >
-                    <StarIcon className="icon-20" />
-                  </button>
-                ))}
+                {[1, 2, 3, 4, 5].map((v) => {
+                  const Icon = satisfaction >= v ? StarSolid : StarOutline;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`icon-button ${
+                        satisfaction >= v ? "active" : ""
+                      }`}
+                      onClick={() => setSatisfaction(v)}
+                    >
+                      <Icon className="icon-20" />
+                    </button>
+                  );
+                })}
               </div>
             </section>
 
@@ -214,18 +222,21 @@ export default function ReviewFormModal({
                 ระดับความยาก <span className="required">*</span>
               </div>
               <div className="rating-row">
-                {[1, 2, 3, 4, 5].map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    className={`icon-button ${
-                      difficulty >= v ? "active" : ""
-                    }`}
-                    onClick={() => setDifficulty(v)}
-                  >
-                    <FireIcon className="icon-20" />
-                  </button>
-                ))}
+                {[1, 2, 3, 4, 5].map((v) => {
+                  const Icon = difficulty >= v ? FireSolid : FireOutline;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`icon-button ${
+                        difficulty >= v ? "active" : ""
+                      }`}
+                      onClick={() => setDifficulty(v)}
+                    >
+                      <Icon className="icon-20" />
+                    </button>
+                  );
+                })}
               </div>
             </section>
 
@@ -235,18 +246,21 @@ export default function ReviewFormModal({
                 ปริมาณงาน <span className="required">*</span>
               </div>
               <div className="rating-row">
-                {[1, 2, 3, 4, 5].map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    className={`icon-button ${
-                      workload >= v ? "active" : ""
-                    }`}
-                    onClick={() => setWorkload(v)}
-                  >
-                    <BookOpenIcon className="icon-20" />
-                  </button>
-                ))}
+                {[1, 2, 3, 4, 5].map((v) => {
+                  const Icon = workload >= v ? BookSolid : BookOutline;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      className={`icon-button ${
+                        workload >= v ? "active" : ""
+                      }`}
+                      onClick={() => setWorkload(v)}
+                    >
+                      <Icon className="icon-20" />
+                    </button>
+                  );
+                })}
               </div>
             </section>
 
