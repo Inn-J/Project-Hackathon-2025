@@ -3,6 +3,7 @@ import {
   getMyWishlist,
   addWishlist,
   removeWishlist,
+  updateWishlistNote,
 } from '../controller/wishlistController.js';
 
 // ⬅️ 1. Import "ยาม" (middleware) ของคุณ
@@ -17,5 +18,6 @@ const router = express.Router();
 router.get('/my', checkAuth, getMyWishlist); // ⬅️ 2. เพิ่ม 'protect'
 router.post('/', checkAuth, addWishlist); // ⬅️ 3. เพิ่ม 'protect'
 router.delete('/:courseId', checkAuth, removeWishlist); // ⬅️ 4. เพิ่ม 'protect'
+router.patch('/:courseId', checkAuth, updateWishlistNote); // ⬅️ 5. เพิ่ม 'protect'
 
 export default router;
