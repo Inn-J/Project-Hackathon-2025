@@ -70,12 +70,21 @@
 }
 
 .auth-avatar-placeholder {
-  width: 100px;
-  height: 100px;
-  background-color: #e0e0e0;
+/* (นี่คือวงกลมพื้นหลัง) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px; /* ขนาดวงกลม */
+  height: 80px;
   border-radius: 50%;
-  margin: 0 auto 30px auto;
+  background-color: #e5e7eb; /* สีเทาอ่อน (พื้นหลังไอคอน) */
+  
+  /* จัดให้อยู่ตรงกลาง และเว้นระยะล่าง */
+  margin: 0 auto 1.5rem auto; 
 }
+
+
+
 
 .auth-input-group {
   position: relative;
@@ -150,4 +159,24 @@
 }
 .auth-back-button:hover {
   background: #e0e0e0;
+}
+.forgot-password-container {
+  /* จัดชิดขวา */
+  text-align: right; 
+  /* ขยับลงมาจากช่อง Password */
+  margin-top: 10px; 
+  /* เว้นที่ก่อนปุ่ม Login */
+  margin-bottom: 15px; 
+}
+
+/* (เราใช้คลาส .auth-link เดิมที่คุณมีอยู่แล้ว) */
+.forgot-password-container .auth-link {
+  font-size: 14px; 
+  color: #555; /* (แก้สีได้ตามชอบ) */
+}
+.auth-avatar-icon {
+  /* (นี่คือตัวไอคอนข้างใน) */
+  width: 100%;
+  height: 100%;
+  color: #9ca3af; /* สีเทาของตัวไอคอน */
 }

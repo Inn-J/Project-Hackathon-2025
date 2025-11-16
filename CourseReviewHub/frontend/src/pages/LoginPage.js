@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './AuthLayout.css';
 import { useNavigate } from 'react-router-dom';
-import { MailIcon, LockClosedIcon } from '@heroicons/react/solid';
+import { MailIcon, LockClosedIcon,UserCircleIcon } from '@heroicons/react/solid';
 import { auth } from '../services/firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; 
 import axios from '../services/axiosConfig';
 import logo from '../img/logo.png';
 
@@ -20,38 +20,38 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // 1. Login กับ Firebase (ตรงนี้สำคัญ!)
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // 2. ดึง Token
       const idToken = await userCredential.user.getIdToken();
-      
-      // 3. เช็ค Role กับ Backend
       const response = await axios.get('/users/me');
-      const userRole = response.data.role;
-      
-      console.log('Login successful!', response.data);
-      
-      // 4. Navigate ไปหน้า Home
       navigate('/');
-
     } catch (err) {
       console.error('Login Error:', err);
-      
-      // แสดง Error ตามประเภท
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
         setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       } else if (err.code === 'auth/user-not-found') {
         setError('ไม่พบผู้ใช้นี้ในระบบ');
-      } else if (err.code === 'auth/invalid-email') {
-        setError('รูปแบบอีเมลไม่ถูกต้อง');
-      } else if (err.code === 'auth/too-many-requests') {
-        setError('พยายามเข้าสู่ระบบหลายครั้งเกินไป กรุณารอสักครู่');
       } else {
         setError('เกิดข้อผิดพลาด: ' + err.message);
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    const emailToReset = prompt("กรุณากรอกอีเมลของคุณเพื่อรีเซ็ตรหัสผ่าน:");
+    if (!emailToReset) return;
+
+    try {
+      await sendPasswordResetEmail(auth, emailToReset);
+      alert("ส่งอีเมลรีเซ็ตรหัสผ่านให้แล้ว! กรุณาตรวจสอบใน Inbox (และ Junk mail)");
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      if (error.code === 'auth/user-not-found') {
+        alert('ไม่พบอีเมลนี้ในระบบ');
+      } else {
+        alert("ไม่สามารถส่งอีเมลได้: " + error.message);
+      }
     }
   };
 
@@ -65,7 +65,9 @@ export default function LoginPage() {
 
       <div className="auth-form-container">
         <div className="auth-form-wrapper">
-          <div className="auth-avatar-placeholder"></div>
+          <div className="auth-avatar-placeholder">
+            <UserCircleIcon className="auth-avatar-icon" />
+          </div>
 
           <form onSubmit={handleLogin}>
             <div className="auth-input-group">
@@ -96,17 +98,28 @@ export default function LoginPage() {
 
             {error && <p style={{ color: 'red', textAlign: 'center', fontSize: '14px', marginTop: '10px' }}>{error}</p>}
 
+            {/* ⬇️ === (จุดที่ 1: เพิ่ม/ย้ายมาตรงนี้) === ⬇️ */}
+            <div className="forgot-password-container">
+              <span className="auth-link" onClick={handlePasswordReset}>
+                Forget Password?
+              </span>
+            </div>
+            {/* ⬆️ === สิ้นสุดจุดที่เพิ่ม === ⬆️ */}
+
             <button type="submit" className="auth-button" disabled={loading}>
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'Login'}
             </button>
           </form>
           
+          {/* ⬇️ === (จุดที่ 2: แก้ไขส่วนล่าง) === ⬇️ */}
           <div className="auth-link-container">
+            {/* (ลบ "ลืมรหัสผ่าน?" และ "|" ออกจากตรงนี้) */}
             Don't have an account?{' '}
             <span className="auth-link" onClick={() => navigate('/signup')}>
               Sign Up
             </span>
           </div>
+          
         </div>
       </div>
     </div>

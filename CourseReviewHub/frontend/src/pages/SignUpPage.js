@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import './AuthLayout.css'; // 1. Import CSS เดียวกัน
 import { useNavigate } from 'react-router-dom';
-import { UserIcon, MailIcon, LockClosedIcon, AcademicCapIcon, BriefcaseIcon, ArrowLeftIcon, IdentificationIcon } from '@heroicons/react/solid';
+
+// ⬇️ 1. เพิ่ม UserCircleIcon เข้าไปใน import นี้ ⬇️
+import { UserIcon, MailIcon, LockClosedIcon, AcademicCapIcon, BriefcaseIcon, ArrowLeftIcon, IdentificationIcon, UserCircleIcon } from '@heroicons/react/solid';
+
 import axios from '../services/axiosConfig'; 
 import logo from '../img/logo.png';
+
 export default function SignUpPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1 = หน้าแรก, 2 = หน้าสอง
@@ -59,10 +63,8 @@ export default function SignUpPage() {
 
     try {
       // --- (สำคัญ!) ยิง API Register ของอิน ---
-      // (นี่คือโค้ดจริงที่ต้องใช้ - ตอนนี้ขอ Comment ไว้ก่อน)
       await axios.post('/users/register', formData);
 
-      // (โค้ดจำลอง)
       console.log('Registering with data:', formData);
       
       // 2. ถ้าสำเร็จ ให้เด้งกลับไปหน้า Login
@@ -134,10 +136,10 @@ export default function SignUpPage() {
     <div className="auth-container">
       {/* 1. ฝั่งซ้าย (Logo) */}
      <div className="auth-sidebar">
-             <div className="auth-logo-wrapper">
-               <img src={logo} alt="CourseReviewHub Logo" /> {/* ⬅️ เอามาวางตรงนี้เลย */}
-             </div>
+           <div className="auth-logo-wrapper">
+             <img src={logo} alt="CourseReviewHub Logo" /> {/* ⬅️ เอามาวางตรงนี้เลย */}
            </div>
+         </div>
       {/* 2. ฝั่งขวา (Form) */}
       <div className="auth-form-container">
         
@@ -150,7 +152,11 @@ export default function SignUpPage() {
         </button>
 
         <div className="auth-form-wrapper">
-          <div className="auth-avatar-placeholder"></div>
+          
+          {/* ⬇️ 2. แก้ไข div นี้ ⬇️ */}
+          <div className="auth-avatar-placeholder">
+            <UserCircleIcon className="auth-avatar-icon" />
+          </div>
 
           {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
