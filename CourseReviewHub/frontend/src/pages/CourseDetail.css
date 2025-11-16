@@ -17,8 +17,13 @@
   font-weight: 600;
 }
 
-.course-title {
+.course-title-th {
   font-size: 28px;
+  margin: 5px 0 10px 0;
+}
+
+.course-title-en {
+  font-size: 20px;
   margin: 5px 0 10px 0;
 }
 

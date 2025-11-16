@@ -166,7 +166,8 @@ export default function CourseDetail() {
         {/* HEADER วิชา */}
         <div className="course-header-card">
           <span className="course-code">{course.course_code}</span>
-          <h1 className="course-title">{course.name_th}</h1>
+          <h1 className="course-title-th">{course.name_th}</h1>
+          <h1 className="course-title-en">{course.name_en}</h1>
 
           <div className="course-meta">
             <div className="meta-item">
