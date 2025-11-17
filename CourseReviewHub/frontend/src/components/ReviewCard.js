@@ -11,7 +11,7 @@ import {
 import ReportReviewModal from './ReportReviewModal';
 import { useAuth } from '../context/AuthContext';
 import './ReviewCard.css';
-import ReviewForm from "../components/ReviewForm";
+import ReviewFormModal from "../components/ReviewForm";
 
 export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const [openMenu, setOpenMenu] = useState(false);
@@ -20,7 +20,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const [replyText, setReplyText] = useState('');
   const [helpfulStatus, setHelpfulStatus] = useState(null);
 
-  // ⭐️ เพิ่ม state modal แก้ไข
+  // modal แก้ไขรีวิว
   const [openEditModal, setOpenEditModal] = useState(false);
 
   const menuRef = useRef();
@@ -32,10 +32,13 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const isStudent = role.toLowerCase() === 'student';
   const isInstructor = role.toLowerCase() === 'instructor';
 
+  // รองรับทั้ง authorId และ user_id + กันเรื่อง number/string
+  const rawAuthorId = review.authorId ?? review.user_id;
+
   const isOwner =
-    currentUser &&
-    review.authorId &&
-    currentUser.id === review.authorId;
+    !!currentUser &&
+    rawAuthorId != null &&
+    String(currentUser.id) === String(rawAuthorId);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -73,13 +76,12 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     return () => { cancelled = true; };
   }, [currentUser?.id, review?.id]);
 
-
   // --- ส่งรายงาน ---
   const handleReportSubmit = async ({ reason, details }) => {
     try {
       await apiClient.post('/reports', {
         reporterId: currentUser.id,
-        targetUserId: review.authorId || null,
+        targetUserId: review.authorId || review.user_id || null,
         targetReviewId: review.id,
         reason,
         details,
@@ -104,39 +106,39 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
 
   // --- แก้ไขรีวิว (submit) ---
   const handleEditSubmit = async (payload) => {
-  try {
-    const res = await apiClient.put(`/reviews/${review.id}`, payload);
+    try {
+      // backend เป็น PATCH /api/reviews/:id
+      const res = await apiClient.patch(`/reviews/${review.id}`, payload);
 
-    setOpenEditModal(false);
+      setOpenEditModal(false);
 
-    // อัปเดต state การ์ดนี้เองผ่าน parent
-    if (onEditReview) {
-      onEditReview({
-        ...review,
-        grade: payload.grade,
-        tags: payload.tags,
-        ratings: {
-          satisfaction: payload.rating_satisfaction,
-          difficulty: payload.rating_difficulty,
-          workload: payload.rating_workload,
-        },
-        content: {
-          prerequisite: payload.content_prerequisite,
-          prosCons: payload.content_pros_cons,
-          tips: payload.content_tips,
-        },
-      });
+      if (onEditReview) {
+        onEditReview({
+          ...review,
+          grade: payload.grade,
+          tags: payload.tags,
+          ratings: {
+            satisfaction: payload.rating_satisfaction,
+            difficulty: payload.rating_difficulty,
+            workload: payload.rating_workload,
+          },
+          content: {
+            prerequisite: payload.content_prerequisite,
+            prosCons: payload.content_pros_cons,
+            tips: payload.content_tips,
+          },
+        });
+      }
+
+      alert("บันทึกการแก้ไขรีวิวเรียบร้อยแล้ว ✨");
+    } catch (err) {
+      console.error("edit review error:", err.response?.data || err);
+      alert(
+        err?.response?.data?.error ||
+          "ไม่สามารถบันทึกการแก้ไขรีวิวได้ กรุณาลองใหม่อีกครั้ง"
+      );
     }
-
-    alert("บันทึกการแก้ไขรีวิวเรียบร้อยแล้ว ✨");
-  } catch (err) {
-    console.error("edit review error:", err.response?.data || err);
-    alert(
-      err?.response?.data?.error ||
-        "ไม่สามารถบันทึกการแก้ไขรีวิวได้ กรุณาลองใหม่อีกครั้ง"
-    );
-  }
-};
+  };
 
   // --- vote ---
   const handleHelpfulVote = async (isHelpful) => {
@@ -173,15 +175,14 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
       alert("ส่งคำตอบไม่สำเร็จ");
     }
   };
+
   const goToUserProfile = () => {
-    if (!review.authorId) return; // (กันพัง)
-    
+    if (!rawAuthorId) return;
+
     if (isOwner) {
-      // ถ้าเป็นรีวิวเราเอง ให้ไปหน้า /profile
       navigate('/profile');
     } else {
-      // ถ้าเป็นรีวิวคนอื่น ให้ไปหน้า /user/:id
-      navigate(`/user/${review.authorId}`);
+      navigate(`/user/${rawAuthorId}`);
     }
   };
 
@@ -191,39 +192,39 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
       <div className="review-card">
         <div className="review-card-content">
 
-        {/* HEADER */}
-      <div className="review-header">
-        {/* ⬇️ 4. (แก้ไข) ทำให้ส่วน author กดได้ ⬇️ */}
-        <div 
-          className="review-author-info review-author-info-clickable" // (เพิ่มคลาสใหม่)
-          onClick={goToUserProfile}
-          title={`ดูโปรไฟล์ของ ${review.author}`}
-        >
-          <div className="review-author-avatar">
-            {(review.author?.charAt(0) || 'U').toUpperCase()}
-          </div>
-          <div className="review-author-details">
-            <div className="review-author-name">
-              {review.author}
-              <span className="review-verified-badge">✓ ยืนยันแล้ว</span>
-            </div>
-            <div className="review-author-grade">
-              เกรดที่ได้: <span className="grade-value">{review.grade}</span>
-            </div>
-            
-          {review.course && (
-              <div 
-                className="review-course-name" // (ใช้ CSS เดียวกัน)
-                onClick={(e) => {
-                  e.stopPropagation(); 
-                  navigate(`/courses/${review.course.id || review.course_id}`);
-                }}
-              >
-                {review.course.course_code} - {review.course.name_th}
+          {/* HEADER */}
+          <div className="review-header">
+            {/* author กดได้ */}
+            <div
+              className="review-author-info review-author-info-clickable"
+              onClick={goToUserProfile}
+              title={`ดูโปรไฟล์ของ ${review.author}`}
+            >
+              <div className="review-author-avatar">
+                {(review.author?.charAt(0) || 'U').toUpperCase()}
               </div>
-            )}
-          </div>
-        </div>
+              <div className="review-author-details">
+                <div className="review-author-name">
+                  {review.author}
+                  <span className="review-verified-badge">✓ ยืนยันแล้ว</span>
+                </div>
+                <div className="review-author-grade">
+                  เกรดที่ได้: <span className="grade-value">{review.grade}</span>
+                </div>
+
+                {review.course && (
+                  <div
+                    className="review-course-name"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/courses/${review.course.id || review.course_id}`);
+                    }}
+                  >
+                    {review.course.course_code} - {review.course.name_th}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* จุดสามจุด */}
             <div className="review-menu-wrapper" ref={menuRef}>
@@ -241,7 +242,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
                       <button
                         className="dropdown-item"
                         onClick={() => {
-                          setOpenEditModal(true);  // ⭐ เปิด modal edit
+                          setOpenEditModal(true);
                           setOpenMenu(false);
                         }}
                       >
@@ -409,35 +410,24 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
         </div>
       )}
 
-      {/* ----------------- MODAL EDIT REVIEW ----------------- */}
-      {openEditModal && (
-        <div
-          className="report-modal__backdrop"
-          onClick={() => setOpenEditModal(false)}
-        >
-          <div
-            className="report-modal__container"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ReviewForm
-              mode="edit"
-              course={review.course}
-              initialReview={{
-                grade: review.grade,
-                tags: review.tags || [],
-                rating_satisfaction: review.ratings?.satisfaction || 0,
-                rating_difficulty: review.ratings?.difficulty || 0,
-                rating_workload: review.ratings?.workload || 0,
-                content_prerequisite: review.content?.prerequisite || '',
-                content_pros_cons: review.content?.prosCons || '',
-                content_tips: review.content?.tips || '',
-              }}
-              onClose={() => setOpenEditModal(false)}
-              onSubmit={handleEditSubmit}
-            />
-          </div>
-        </div>
-      )}
+      {/* ----------------- MODAL EDIT REVIEW (ใช้ ReviewFormModal) ----------------- */}
+      <ReviewFormModal
+        isOpen={openEditModal}
+        mode="edit"
+        course={review.course}
+        initialReview={{
+          grade: review.grade,
+          tags: review.tags || [],
+          rating_satisfaction: review.ratings?.satisfaction || 0,
+          rating_difficulty: review.ratings?.difficulty || 0,
+          rating_workload: review.ratings?.workload || 0,
+          content_prerequisite: review.content?.prerequisite || '',
+          content_pros_cons: review.content?.prosCons || '',
+          content_tips: review.content?.tips || '',
+        }}
+        onClose={() => setOpenEditModal(false)}
+        onSubmit={handleEditSubmit}
+      />
     </>
   );
 }

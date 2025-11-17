@@ -129,7 +129,14 @@ export default function ReviewFormModal({
       onClose?.();
     } catch (err) {
       console.error("submit review error:", err);
-      setError(err?.message || "บันทึกรีวิวไม่สำเร็จ");
+
+  const backendError = err?.response?.data?.error || err?.message;
+
+  if (backendError?.includes("รีวิววิชานี้ไปแล้ว")) {
+    setError("คุณได้รีวิววิชานี้ไปแล้ว ไม่สามารถรีวิวซ้ำได้");
+  } else {
+    setError(backendError || "บันทึกรีวิวไม่สำเร็จ");
+  }
     } finally {
       setSubmitting(false);
     }

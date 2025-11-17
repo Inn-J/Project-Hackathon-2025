@@ -10,7 +10,7 @@ router.get('/course/:courseId', getReviewsByCourse);
 router.get('/my',checkAuth ,getMyReviews);
 router.get('/:id', getReviewById);
 router.post('/',checkAuth, createReview); 
-router.patch('/:id', updateReview);
+router.patch('/:id',checkAuth, updateReview);
 router.delete('/:id',checkAuth, deleteReview);
 router.post('/:id/helpful', checkAuth, voteReviewHelpful);
 router.get('/:id/helpful/me', checkAuth, getMyHelpfulVote);

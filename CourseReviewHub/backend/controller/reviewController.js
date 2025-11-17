@@ -41,7 +41,6 @@ export const createReview = async (req, res) => {
       });
     }
 
-    // (ถ้าจะเช็คช่วง 1–5)
     const inRange = (n) => typeof n === "number" && n >= 1 && n <= 5;
     if (
       !inRange(rating_satisfaction) ||
@@ -51,6 +50,21 @@ export const createReview = async (req, res) => {
       return res
         .status(400)
         .json({ error: "คะแนนต้องอยู่ระหว่าง 1 ถึง 5" });
+    }
+
+    // 🔍 เช็คว่ามีรีวิวเก่าของ user ในวิชานี้อยู่แล้วหรือยัง
+    const { data: existingReviews, error: existingErr } = await supabase
+      .from("reviews")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("course_id", course_id);
+
+    if (existingErr) throw existingErr;
+
+    if (existingReviews && existingReviews.length > 0) {
+      return res.status(400).json({
+        error: "คุณได้เขียนรีวิววิชานี้ไปแล้ว ไม่สามารถรีวิวซ้ำได้",
+      });
     }
 
     // ---- insert ลง Supabase ----
@@ -72,7 +86,7 @@ export const createReview = async (req, res) => {
         `*,
          users ( username )`
       )
-      .single();
+      .single();   // ตรงนี้โอเค เพราะ insert แค่ 1 แถว
 
     if (error) throw error;
 
@@ -84,6 +98,8 @@ export const createReview = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // ----------------------------------------------------------------
 // GET /api/reviews/latest (READ - ดึง 5 รีวิวล่าสุด)
