@@ -1,19 +1,25 @@
-// src/components/WishlistForm.jsx (หรือ WishlistModal.jsx)
+// src/components/WishlistForm.jsx
 import React, { useEffect, useState } from "react";
 import "./WishlistForm.css";
 
-export default function WishlistForm({ isOpen, onClose, course, onSave }) {
-  const [note, setNote] = useState("");
+export default function WishlistForm({
+  isOpen,
+  onClose,
+  course,
+  onSave,
+  initialNote = "",
+}) {
+  const [note, setNote] = useState(initialNote);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      setNote("");
+      setNote(initialNote || "");
       setError("");
       setSubmitting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialNote]);
 
   if (!isOpen) return null;
 
@@ -23,8 +29,7 @@ export default function WishlistForm({ isOpen, onClose, course, onSave }) {
     setError("");
 
     try {
-      await onSave?.(note);
-      // onSave จะจัดการปิด modal เอง หรือเราจะปิดที่นี่ก็ได้
+      await onSave?.(note);   // ✅ ส่ง note กลับไป
     } catch (err) {
       console.error("add wishlist error:", err);
       setError(err?.message || "ไม่สามารถบันทึก Wishlist ได้");

@@ -1,11 +1,17 @@
+// src/pages/WishlistPage.jsx
 import React from 'react';
 import { useWishlist } from '../context/WishlistContext'; 
 import WishlistCard from '../components/WishlistCard'; 
-import Header from '../components/Header'; // ⬅️ หน้านี้ใช้ Header แบบไม่มีค้นหา
+import Header from '../components/Header';
 import './WishlistPage.css'; 
 
 export default function WishlistPage() {
-  const { wishlistItems, loading, removeFromWishlist } = useWishlist();
+  const {
+    wishlistItems,
+    loading,
+    removeFromWishlist,
+    updateWishlistNote,   // ✅ ดึงจาก Context
+  } = useWishlist();
 
   const handleRemoveItem = async (courseId) => {
     try {
@@ -15,11 +21,28 @@ export default function WishlistPage() {
     }
   };
 
-  if (loading) return <div><Header /><div className="loading-state">กำลังโหลด...</div></div>;
+  // ✅ ฟังก์ชันสำหรับอัปเดตโน้ต ใช้ courseId ตาม Context
+  const handleUpdateNote = async (courseId, newNote) => {
+    try {
+      await updateWishlistNote(courseId, newNote);
+    } catch (err) {
+      console.error("Error updating wishlist note:", err);
+      alert("บันทึกบันทึกส่วนตัวไม่สำเร็จ");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <Header />
+        <div className="loading-state">กำลังโหลด...</div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <Header /> {/* ⬅️ เรียกใช้ Header ที่นี่ */}
+      <Header />
       <div className="wishlist-page-container">
         <div className="wishlist-header">
           <h1>✨ รายการวิชาที่บันทึกไว้</h1>
@@ -30,9 +53,10 @@ export default function WishlistPage() {
           {wishlistItems.length > 0 ? (
             wishlistItems.map(item => (
               <WishlistCard 
-                key={item.id} 
-                item={item} 
-                onRemove={handleRemoveItem} 
+                key={item.id}
+                item={item}
+                onRemove={handleRemoveItem}
+                onUpdateNote={handleUpdateNote}   /* ✅ ส่ง callback ลงไป */
               />
             ))
           ) : (
