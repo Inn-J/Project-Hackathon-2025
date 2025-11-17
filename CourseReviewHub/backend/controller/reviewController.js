@@ -94,7 +94,7 @@ export const getLatestReviews = async (req, res) => {
       .from('reviews')
       .select(`
             *,
-            courses (course_code, name_th),
+            courses (id,course_code, name_th),
             users (username, role),
             instructor_replies (
                 id,

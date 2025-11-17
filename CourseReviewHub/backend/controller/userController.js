@@ -139,7 +139,7 @@ export const getUserPublicProfile = async (req, res) => {
     // ❌ (ห้าม) SELECT 'email' หรือ 'student_id'
     const { data: user, error: userErr } = await supabase
       .from('users')
-      .select('id, username, faculty, role, created_at') // ⬅️ (เลือกเฉพาะข้อมูลสาธารณะ)
+      .select('id, username, faculty,major, role, created_at') // ⬅️ (เลือกเฉพาะข้อมูลสาธารณะ)
       .eq('id', id)
       .single();
 

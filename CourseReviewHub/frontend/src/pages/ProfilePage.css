@@ -45,8 +45,9 @@
 }
 
 .profile-meta {
-  color: #C7D2FE; /* (สีม่วง 200) */
-  margin: 4px 0 0 0;
+ font-size: 0.875rem; /* 14px (เล็กลง) */
+  color: #C7D2FE;     /* (สีม่วง 200) - สีเดิม */
+  margin: 10px 0 0 0;
 }
 
 /* Stats */
@@ -54,7 +55,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-top: 32px;
+  margin-top: px;
 }
 
 .profile-stat-box {
@@ -223,4 +224,11 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+.profile-department {
+  font-size: 1.125rem; /* 18px (ใหญ่ขึ้น) */
+  font-weight: 500;     /* หนาปานกลาง */
+  color: #FFFFFF;       /* สีขาว ชัดเจน */
+  margin: 8px 0 0 0;
+  opacity: 0.9;         /* ลดความจ้าลงเล็กน้อยให้สบายตา */
 }

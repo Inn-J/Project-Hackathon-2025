@@ -31,7 +31,8 @@ function ProfileHeader({ currentUser, reviews }) {
   const avatarInitial = displayName.charAt(0).toUpperCase();
   const joinedDate = formatDate(currentUser?.created_at);
   const userRole = currentUser?.role || 'Member';
-
+const faculty = currentUser?.faculty || 'ไม่ระบุคณะ';
+const major = currentUser?.major || 'ไม่ระบุสาขา';
   const reviewCount = reviews.length;
   const helpfulCount = reviews.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
   const subjectsReviewed = new Set(reviews.map(r => r.course_id)).size;
@@ -51,6 +52,8 @@ function ProfileHeader({ currentUser, reviews }) {
         <div className="profile-avatar">{avatarInitial}</div>
         <div className="profile-details">
           <h2 className="profile-name">{displayName}</h2>
+          <p className="profile-department">คณะ: {faculty}</p>
+          <p className="profile-department">สาขา: {major}</p>
           <p className="profile-meta">เข้าร่วมเมื่อ {joinedDate}</p>
           <p className="profile-meta">สิทธิ์ผู้ใช้: {userRole}</p>
         </div>
