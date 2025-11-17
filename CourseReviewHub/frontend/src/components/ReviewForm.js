@@ -278,7 +278,7 @@ export default function ReviewFormModal({
                     }`}
                     onClick={() => toggleTag(tag)}
                   >
-                    {tag}
+                    # {tag}
                   </button>
                 ))}
               </div>

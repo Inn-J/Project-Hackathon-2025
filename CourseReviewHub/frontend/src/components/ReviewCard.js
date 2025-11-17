@@ -278,7 +278,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
           {/* TAGS */}
           <div className="review-tags">
             {(review.tags || []).map(tag => (
-              <span key={tag} className="review-tag-item">{tag}</span>
+              <span key={tag} className="review-tag-item"># {tag}</span>
             ))}
           </div>
 

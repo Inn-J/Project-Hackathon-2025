@@ -130,7 +130,7 @@ export default function MyReviewCard({ review, onEditReview, onDelete }) {
         <div className="review-tags">
           {review.tags?.length > 0
             ? review.tags.map(tag => (
-                <span key={tag} className="review-tag-item">{tag}</span>
+                <span key={tag} className="review-tag-item"># {tag}</span>
               ))
             : <span className="review-tag-item">ไม่มีแท็ก</span>}
         </div>

@@ -291,7 +291,6 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <h2 className="section-title">รีวิวของฉัน</h2>
                     {reviews.length > 0 ? (
                       reviews.map((review) => (
                         <MyReviewCard
