@@ -43,7 +43,8 @@ export default function SearchPage() {
     .filter(c =>
       q
         ? (c.course_code || '').toLowerCase().includes(q.toLowerCase()) ||
-          (c.name_th || '').toLowerCase().includes(q.toLowerCase())
+          (c.name_th || '').toLowerCase().includes(q.toLowerCase()) ||
+          (c.name_en || '').toLowerCase().includes(q.toLowerCase())
         : true
     )
     // ⭐ ใช้ c.difficulty (ไม่ใช่ difficulty_avg)

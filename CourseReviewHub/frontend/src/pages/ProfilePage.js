@@ -41,7 +41,6 @@ function ProfileHeader({ currentUser, reviews }) {
       ? (reviews.reduce((sum, r) => sum + (r.rating_satisfaction || 0), 0) / reviews.length).toFixed(1)
       : '0';
 
-  console.log('reviews in header:', reviews);
 
 
   return (

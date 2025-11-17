@@ -44,11 +44,6 @@ export default function HomePage() {
         const reviewsRes = await apiClient.get('/reviews/latest');
 
         const withoutCourse = reviewsRes.data.filter(r => !r.course).length;
-        console.log(
-          withoutCourse > 0
-            ? `⚠️ มี ${withoutCourse} รีวิวที่ไม่มี course`
-            : '✅ ทุกรีวิวมี course แล้ว'
-        );
 
         setLatestReviews(reviewsRes.data || []);
       } catch (err) {

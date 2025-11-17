@@ -10,8 +10,6 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
   const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [openMenu, setOpenMenu] = useState(false);
-    console.log('review object', review);
-  console.log('username?', review.users?.username);
     if (!review) return null;
 
 

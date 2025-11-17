@@ -38,33 +38,33 @@ export const createCourse = async (req, res) => {
 // GET /api/courses (READ - ดึงรายวิชาทั้งหมดพร้อมระบบค้นหา)
 // ----------------------------------------------------------------
 export const getAllCourses = async (req, res) => {
-    try {
-        // 1. เช็คว่ามีการค้นหา (Search) ส่งมาด้วยไหม
-        const { search } = req.query; 
+  try {
+    const { search } = req.query;
 
-        // 2. เริ่มสร้างคำสั่ง Query
-        let query = supabase.from('courses').select('*');
+    let query = supabase.from("courses").select("*");
 
-        // 3. ถ้ามี ?search=... ให้เพิ่มเงื่อนไข
-        if (search) {
-            const searchPattern = `%${search}%`;
-            // ค้นหาทั้งใน 'name_th' และ 'course_code' โดยไม่สนตัวพิมพ์เล็ก/ใหญ่ (ilike)
-            query = query.or(`name_th.ilike.${searchPattern},course_code.ilike.${searchPattern}`);
-        }
-        
-        // 4. เพิ่มการเรียงลำดับเพื่อให้ผลลัพธ์มีความสม่ำเสมอ
-        query = query.order('course_code', { ascending: true });
+    if (search) {
+      const searchPattern = `%${search}%`;
 
-        // 5. สั่ง Query
-        const { data, error } = await query;
-        if (error) throw error;
-
-        res.status(200).json(data);
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+      query = query.or(
+        `name_th.ilike."${searchPattern}",
+         name_en.ilike."${searchPattern}",
+         course_code.ilike."${searchPattern}"`
+      );
     }
+
+    query = query.order("course_code", { ascending: true });
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("search error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
+
 
 // ----------------------------------------------------------------
 // GET /api/courses/:id (READ by ID - ดึงรายวิชาตาม ID)
@@ -263,7 +263,7 @@ export const getReviewByFaculty = async (req, res) => {
 
     const { data: courses, error: coursesErr } = await supabase
       .from('courses')
-      .select('id, course_code, name_th');
+      .select('id, course_code, name_th,name_en');
 
     if (coursesErr) throw coursesErr;
 
@@ -319,6 +319,7 @@ export const getReviewByFaculty = async (req, res) => {
         id: course.id,
         course_code: course.course_code,
         name_th: course.name_th,
+        name_en: course.name_en,
         difficulty,
         review_count,
         same_faculty_reviewers: s.sameFacultyCount,
