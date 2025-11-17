@@ -27,7 +27,6 @@ export const WishlistProvider = ({ children }) => {
 
       setLoading(true);
       const response = await apiClient.get('/wishlist/my');
-      console.log('[WishlistContext] ยิง API สำเร็จ! ได้ข้อมูล:', response.data);
 
       setWishlistItems(response.data);
       const ids = new Set(response.data.map(item => item.course_id));

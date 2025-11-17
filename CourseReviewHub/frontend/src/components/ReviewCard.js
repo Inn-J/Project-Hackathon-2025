@@ -47,7 +47,6 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-   console.log('review object', review);
   const renderRating = (Icon, level, activeColorClass) => {
     return [...Array(5)].map((_, i) => (
       <Icon key={i} className={`rating-icon ${i < level ? activeColorClass : ''}`} />
@@ -138,12 +137,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     );
   }
 };
-useEffect(() => {
-  console.log('🎴 ReviewCard received review:', review);
-    console.log('📚 Course:', review?.course);
-    console.log('👤 Author:', review?.author);
-    console.log('⭐ Ratings:', review?.ratings);
-}, [review]);
+
   // --- vote ---
   const handleHelpfulVote = async (isHelpful) => {
     if (!currentUser || !isStudent) return;

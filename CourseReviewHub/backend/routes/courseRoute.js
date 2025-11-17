@@ -1,6 +1,7 @@
 // routes/courseRoute.js
 import express from 'express';
-import { getAllCourses,getCourseById,createCourse,updateCourse,deleteCourse,getAllCoursesWithStats } from '../controller/courseController.js';
+import checkAuth from "../middleware/auth.js";
+import { getAllCourses,getCourseById,createCourse,updateCourse,deleteCourse,getAllCoursesWithStats,getReviewByFaculty } from '../controller/courseController.js';
 
 const router = express.Router();
 
@@ -8,6 +9,7 @@ const router = express.Router();
 // GET /api/courses?search=... (ค้นหา)
 router.get('/stats', getAllCoursesWithStats);
 router.get('/', getAllCourses); 
+router.get('/faculty', checkAuth, getReviewByFaculty);
 router.get('/:id', getCourseById);
 router.post('/', createCourse);
 router.patch('/:id', updateCourse);

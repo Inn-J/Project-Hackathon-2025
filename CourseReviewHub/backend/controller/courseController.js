@@ -160,6 +160,8 @@ export const getCourseById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 // ----------------------------------------------------------------
 // PATCH /api/courses/:id (UPDATE - อัปเดตรายวิชา)
 // ----------------------------------------------------------------
@@ -238,3 +240,99 @@ export const getAllCoursesWithStats = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const getReviewByFaculty = async (req, res) => {
+  try {
+    const userId = req.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required." });
+    }
+
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .select('id, faculty')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (userErr) throw userErr;
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    const userFaculty = user.faculty || null;
+
+    const { data: courses, error: coursesErr } = await supabase
+      .from('courses')
+      .select('id, course_code, name_th');
+
+    if (coursesErr) throw coursesErr;
+
+    const { data: reviews, error: reviewsErr } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        course_id,
+        rating_difficulty,
+        users (
+          faculty
+        )
+      `);
+
+    if (reviewsErr) throw reviewsErr;
+
+    const statsByCourse = new Map();
+
+    for (const review of reviews) {
+      const courseId = review.course_id;
+      if (!courseId) continue;
+
+      if (!statsByCourse.has(courseId)) {
+        statsByCourse.set(courseId, {
+          review_count: 0,
+          difficultySum: 0,
+          sameFacultyCount: 0,
+        });
+      }
+
+      const stat = statsByCourse.get(courseId);
+      stat.review_count += 1;
+      stat.difficultySum += Number(review.rating_difficulty || 0);
+
+      const reviewerFaculty = review.users?.faculty || null;
+      if (userFaculty && reviewerFaculty === userFaculty) {
+        stat.sameFacultyCount += 1;
+      }
+    }
+
+    let result = courses.map((course) => {
+      const s = statsByCourse.get(course.id) || {
+        review_count: 0,
+        difficultySum: 0,
+        sameFacultyCount: 0,
+      };
+
+      const review_count = s.review_count;
+      const difficulty =
+        review_count > 0 ? s.difficultySum / review_count : 0;
+
+      return {
+        id: course.id,
+        course_code: course.course_code,
+        name_th: course.name_th,
+        difficulty,
+        review_count,
+        same_faculty_reviewers: s.sameFacultyCount,
+      };
+    });
+
+    result.sort((a, b) => (b.review_count ?? 0) - (a.review_count ?? 0));
+
+    return res.status(200).json({ courses: result });
+
+  } catch (error) {
+    console.error("getReviewByFaculty error:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+

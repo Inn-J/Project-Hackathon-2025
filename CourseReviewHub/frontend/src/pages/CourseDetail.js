@@ -245,7 +245,7 @@ export default function CourseDetail() {
         {/* REVIEWS */}
         <div className="review-list">
         {filteredReviews.length === 0 ? (
-  <p className="empty-review">ยังไม่มีรีวิวในหมวดนี้</p>
+  <p className="empty-review">ยังไม่มีรีวิวของวิชานี้</p>
 ) : (
   filteredReviews.map((review) => (
     <ReviewCard

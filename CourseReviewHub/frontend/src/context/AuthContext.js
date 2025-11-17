@@ -20,7 +20,6 @@ export function AuthProvider({ children }) {
           
           // 4. (สำคัญมาก!) เก็บข้อมูลโปรไฟล์ที่รวม Role แล้ว
           setCurrentUser(response.data); 
-          console.log("Profile loaded:", response.data); // ⬅️ เพิ่ม Log เพื่อดู Role ที่ได้
           
         } catch (error) {
           // 5. ถ้าดึง Role จาก Backend ไม่ได้ (เช่น 401 Unauthorized หรือ 500)
