@@ -9,6 +9,11 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserProfile = async () => {
+    const res = await apiClient.get('/users/me');
+    return res.data;
+  };
+  
   useEffect(() => {
     // 1. คอยฟัง Firebase ตลอดเวลา
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -17,17 +22,17 @@ export function AuthProvider({ children }) {
         try {
           // 3. ยิง API ของอิน (/me) เพื่อเอา Role (Interceptor จะแนบ Token ไปให้)
           const response = await apiClient.get('/users/me');
-          
+
           // 4. (สำคัญมาก!) เก็บข้อมูลโปรไฟล์ที่รวม Role แล้ว
-          setCurrentUser(response.data); 
-          
+          setCurrentUser(response.data);
+
         } catch (error) {
           // 5. ถ้าดึง Role จาก Backend ไม่ได้ (เช่น 401 Unauthorized หรือ 500)
           console.error("Auth Error: Could not fetch user profile (Role) from Backend. Forcing Logout.", error);
-          
+
           // ถ้าดึง Role ไม่ได้ ให้ Force Logout เพื่อบังคับให้ User ล็อกอินใหม่
           setCurrentUser(null);
-          auth.signOut(); 
+          auth.signOut();
         }
       } else {
         // 6. ถ้า Logout
@@ -36,18 +41,36 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    return unsubscribe; 
+    return unsubscribe;
   }, []);
+
+  const refreshUser = async () => {
+    try {
+      const profile = await fetchUserProfile();
+      setCurrentUser(profile);
+      return profile;
+    } catch (err) {
+      console.error("refreshUser failed:", err);
+      throw err;
+    }
+  };
+
+  // ✅ ฟังก์ชัน update currentUser ใน memory เฉย ๆ (ไม่ยิง backend)
+  const updateCurrentUserLocal = (partial) => {
+    setCurrentUser((prev) => (prev ? { ...prev, ...partial } : prev));
+  };
 
   const value = {
     currentUser, // ข้อมูลโปรไฟล์ (มี Role)
-    loading      // สถานะการโหลด
+    loading,      // สถานะการโหลด
+    updateCurrentUserLocal,
+    refreshUser,
   };
 
   return (
     <AuthContext.Provider value={value}>
       {/* โชว์หน้าเว็บก็ต่อเมื่อเช็ค Token เสร็จแล้วเท่านั้น */}
-      {!loading && children} 
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

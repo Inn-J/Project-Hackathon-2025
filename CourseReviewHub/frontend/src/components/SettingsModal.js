@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import './SettingsModal.css';
 import apiClient from '../services/axiosConfig';
 import { getAuth } from 'firebase/auth';
+import { useAuth } from '../context/AuthContext';
 
 function SettingsModal({ isOpen, onClose, userData, onUpdate }) {
 
     const [username, setUsername] = useState("");
     const [message, setMessage] = useState("");
+    const { updateCurrentUserLocal } = useAuth();
 
     // โหลดค่าจริงเข้าฟอร์ม
     useEffect(() => {
@@ -30,7 +32,7 @@ function SettingsModal({ isOpen, onClose, userData, onUpdate }) {
 
             // ส่งเฉพาะ username ไปอัปเดต
             const response = await apiClient.patch(
-                "/users/me",
+                "/users",
                 { username },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -38,7 +40,10 @@ function SettingsModal({ isOpen, onClose, userData, onUpdate }) {
             setMessage("บันทึกสำเร็จ!");
 
             // ส่งกลับไปหน้า ProfilePage ให้มัน refresh UI ทันที
-            onUpdate(response.data.user);
+            onUpdate?.(response.data.user);
+
+
+            updateCurrentUserLocal?.(response.data.user);
 
             // ปิด modal
             setTimeout(() => onClose(), 800);
@@ -92,7 +97,7 @@ function SettingsModal({ isOpen, onClose, userData, onUpdate }) {
                     <button type="submit" className="submit-btn">บันทึก</button>
 
                     {message && <p className="form-message">{message}</p>}
-                </form> 
+                </form>
             </div>
         </div>
     );

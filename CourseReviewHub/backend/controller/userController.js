@@ -93,53 +93,52 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    // -----------------------
-    // 1) ตรวจสอบ Token
-    // -----------------------
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: "ไม่พบ Token" });
+    // 1) ได้ user_id จาก middleware ตรวจ token (เช่น checkAuth)
+    const userId = req.user_id;
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
     }
 
-    const uid = req.params.uid;
-
-    // -----------------------
     // 2) รับค่าที่จะอัปเดต
-    // -----------------------
     const { username } = req.body;
 
-    if (!username) {
+    if (!username || !username.trim()) {
       return res.status(400).json({ error: "กรุณาระบุ username" });
     }
 
-    // -----------------------
-    // 3) อัปเดตฐานข้อมูล Supabase
-    // -----------------------
+    // 3) อัปเดตใน Supabase
     const { data, error } = await supabase
       .from("users")
-      .update({ username })
-      .eq("id", uid)
+      .update({ username: username.trim() })
+      .eq("id", userId)
       .select()
-      .single();
+      .maybeSingle(); // ใช้ maybeSingle ป้องกัน PGRST116
 
     if (error) {
       console.error("Update failed:", error);
       return res.status(500).json({ error: "อัปเดตไม่สำเร็จ" });
     }
 
-    // -----------------------
-    // 4) ส่งข้อมูลใหม่กลับไปให้ frontend
-    // -----------------------
-    res.json({
-      message: "อัปเดตชื่อผู้ใช้สำเร็จ",
-      user: data
-    });
+    if (!data) {
+      // ไม่มี row ที่อัปเดตได้ = ไม่เจอ user หรือโดน RLS บล็อก
+      return res
+        .status(404)
+        .json({ error: "ไม่พบผู้ใช้ หรือไม่มีสิทธิ์แก้ไข" });
+    }
 
+    // 4) ส่งข้อมูลใหม่กลับไปให้ frontend
+    return res.json({
+      message: "อัปเดตชื่อผู้ใช้สำเร็จ",
+      user: data,
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
+    console.error("updateMe error:", err);
+    return res
+      .status(500)
+      .json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
   }
 };
+
 
 // DELETE /api/users/:uid
 export const deleteUser = async (req, res) => {
