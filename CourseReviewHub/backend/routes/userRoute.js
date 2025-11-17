@@ -34,7 +34,7 @@ router.get("/", checkAuth, getAllUsers);
 
 // (Private) ดึง/แก้ไข/ลบ ผู้ใช้คนอื่น (สำหรับ Admin)
 router.get("/:uid", checkAuth, getUserById);
-router.patch("/:uid", checkAuth, updateUser);
+router.patch("/", checkAuth, updateUser);
 router.delete("/:uid", checkAuth, deleteUser);
 
 export default router;
