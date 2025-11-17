@@ -545,3 +545,63 @@ export const deleteReview = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+export const createReviewReply = async (req, res) => {
+  try {
+    // ----------------------------------------------------
+    // 👇 2. ย้าย "ยาม" (Logic การเช็ก Role) มาไว้ตรงนี้
+    // ----------------------------------------------------
+    
+    // ดึง ID ผู้ใช้ (จาก 'checkAuth' ตัวเดิม)
+    const authUserId = req.user_id; 
+    if (!authUserId) {
+      return res.status(401).json({ error: 'ไม่พบ ID ผู้ใช้จาก Token' });
+    }
+
+    // ค้นหา "Role" ของผู้ใช้คนนี้จาก Database
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('role') // (ดึงมาแค่ role ก็พอ)
+      .eq('id', authUserId)
+      .single();
+
+    if (userError || !user) {
+      return res.status(404).json({ error: 'ไม่พบผู้ใช้ในระบบ' });
+    }
+
+    // ⭐️ นี่คือการเช็ก Role ที่ปลอดภัย ⭐️
+    if (user.role !== 'INSTRUCTOR' && user.role !== 'instructor') {
+      return res.status(403).json({ error: 'Permission Denied: ต้องเป็นอาจารย์เท่านั้น' });
+    }
+    // (ถ้าผ่านตรงนี้ไปได้ = เป็นอาจารย์แน่นอน)
+    // ----------------------------------------------------
+    // 
+    // 
+    // 👇 3. เริ่ม "ทำงาน" (โค้ดเดิม)
+    // ----------------------------------------------------
+    const reviewId = req.params.id; // ID ของรีวิว
+    const { content } = req.body;   // เนื้อหาที่ตอบกลับ
+    
+    if (!content || content.trim() === '') {
+      return res.status(400).json({ error: 'กรุณาใส่เนื้อหาที่ตอบกลับ' });
+    }
+
+    const { data, error } = await supabase
+      .from('instructor_replies')
+      .insert({
+        review_id: reviewId,
+        instructor_id: authUserId, // ใช้ ID อาจารย์ที่เช็กแล้ว
+        reply_text: content,
+      })
+      .select()
+      .single();
+
+    if (error) { throw error; }
+
+    res.status(201).json(data);
+
+  } catch (err) {
+    console.error("Reply error:", err.message);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดที่ Server' });
+  }
+};
