@@ -93,34 +93,57 @@ export const getLatestReviews = async (req, res) => {
     const { data, error } = await supabase
       .from('reviews')
       .select(`
-                *,
-                courses (course_code, name_th),
-                users (username, role),
-                instructor_replies (
+            *,
+            courses (course_code, name_th),
+            users (username, role),
+            instructor_replies (
+                id,
+                reply_text,
+                created_at,
+                instructor:users!instructor_replies_instructor_id_fkey (
                     id,
-                    reply_text,
-                    created_at,
-                    instructor:users!instructor_replies_instructor_id_fkey (
-                        id,
-                        username,
-                        role
-                    )
+                    username,
+                    role
                 )
-            `)
+            )
+          `)
       .order('created_at', { ascending: false })
       .limit(5);
 
     if (error) throw error;
 
+    // ⬇️ === (นี่คือ "จุดที่แก้ไข" ครับ) === ⬇️
     const formattedData = data.map(review => {
       const latestReply = review.instructor_replies?.[0] || null;
       return {
         ...review,
+        
+        // (1. เพิ่มข้อมูล Course ที่ดึงมา)
+        course: review.courses  || null, 
+        
+        // (2. เพิ่มข้อมูล Author)
+        author: review.users?.username || 'นักศึกษา',
+        authorId: review.user_id,
+
+        // (3. จัดรูปแบบ Ratings)
+        ratings: {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+
+        // (4. จัดรูปแบบ Reply)
         instructor_reply: latestReply?.reply_text || null,
-        instructor: latestReply?.instructor || null,
-        instructor_reply_date: latestReply?.created_at || null,
+        instructorName: latestReply?.instructor?.username || null, // (ชื่อย่อ)
+        instructor: latestReply?.instructor || null, // (ข้อมูลเต็ม)
       };
     });
+    // ⬆️ === (สิ้นสุดการแก้ไข) === ⬆️
 
     res.status(200).json(formattedData);
 
@@ -162,18 +185,39 @@ export const getReviewsByCourse = async (req, res) => {
 
     if (error) throw error;
 
-     const formattedData = data.map(review => {
+    // ⬇️ แก้ตรงนี้ให้เหมือน getLatestReviews
+    const formattedData = data.map(review => {
       const latestReply = review.instructor_replies?.[0] || null;
       return {
         ...review,
+        
+        // ✅ เพิ่มข้อมูล Course
+        course: review.courses, 
+        
+        // ✅ เพิ่มข้อมูล Author
+        author: review.users?.username || 'นักศึกษา',
+        authorId: review.user_id,
+
+        // ✅ จัดรูปแบบ Ratings
+        ratings: {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+
+        // ✅ จัดรูปแบบ Reply
         instructor_reply: latestReply?.reply_text || null,
+        instructorName: latestReply?.instructor?.username || null,
         instructor: latestReply?.instructor || null,
-        instructor_reply_date: latestReply?.created_at || null,
       };
     });
 
     res.status(200).json(formattedData);
-
     
   } catch (error) {
     console.error("getReviewsByCourse error:", error);
@@ -194,8 +238,8 @@ export const getMyReviews = async (req, res) => {
       .from('reviews')
       .select(`
         *,
-        users (username, role),
         courses (course_code, name_th),
+        users (username, role),
         instructor_replies (
             id,
             reply_text,
@@ -212,15 +256,38 @@ export const getMyReviews = async (req, res) => {
 
     if (error) throw error;
 
+    // ⬇️ === (นี่คือ "จุดที่แก้ไข" ครับ) === ⬇️
     const formattedData = data.map(review => {
       const latestReply = review.instructor_replies?.[0] || null;
       return {
         ...review,
+        
+        // (1. เพิ่มข้อมูล Course)
+        course: review.courses, 
+        
+        // (2. เพิ่มข้อมูล Author)
+        author: review.users?.username || 'นักศึกษา',
+        authorId: review.user_id,
+
+        // (3. จัดรูปแบบ Ratings)
+        ratings: {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+
+        // (4. จัดรูปแบบ Reply)
         instructor_reply: latestReply?.reply_text || null,
+        instructorName: latestReply?.instructor?.username || null,
         instructor: latestReply?.instructor || null,
-        instructor_reply_date: latestReply?.created_at || null,
       };
     });
+    // ⬆️ === (สิ้นสุดการแก้ไข) === ⬆️
 
     res.status(200).json(formattedData);
   } catch (err) {

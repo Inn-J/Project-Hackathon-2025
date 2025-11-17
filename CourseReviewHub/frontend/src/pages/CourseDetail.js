@@ -244,36 +244,45 @@ export default function CourseDetail() {
 
         {/* REVIEWS */}
         <div className="review-list">
-          {filteredReviews.length === 0 ? (
-            <p className="empty-review">ยังไม่มีรีวิวในหมวดนี้</p>
-          ) : (
-            filteredReviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                review={{
-                  id: review.id,
-                  author: review.users?.username || "นักศึกษา",
-                  authorId: review.user_id,
-                  grade: review.grade,
-                  tags: review.tags || [],
-                  ratings: {
-                    satisfaction: review.rating_satisfaction,
-                    difficulty: review.rating_difficulty,
-                    workload: review.rating_workload,
-                  },
-                  content: {
-                    prerequisite: review.content_prerequisite,
-                    prosCons: review.content_pros_cons,
-                    tips: review.content_tips,
-                  },
-                  instructor_reply: review.instructor_reply,
-                  instructorName: review.instructor?.username,
-                }}
-                onEditReview={handleReviewUpdated}
-                onDeleteReview={handleReviewDeleted}
-              />
-            ))
-          )}
+        {filteredReviews.length === 0 ? (
+  <p className="empty-review">ยังไม่มีรีวิวในหมวดนี้</p>
+) : (
+  filteredReviews.map((review) => (
+    <ReviewCard
+      key={review.id}
+      review={{
+        id: review.id,
+        author: review.author || review.users?.username || "นักศึกษา",
+        authorId: review.authorId || review.user_id,
+        grade: review.grade,
+        tags: review.tags || [],
+        
+        // ✅ เพิ่ม course (ใช้จากตัวแปร course ที่มีอยู่แล้ว)
+        course: review.course || {
+          id: course.id,
+          course_code: course.course_code,
+          name_th: course.name_th,
+        },
+        
+        ratings: review.ratings || {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: review.content || {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+        instructor_reply: review.instructor_reply,
+        instructorName: review.instructorName || review.instructor?.username,
+        instructor: review.instructor,
+      }}
+      onEditReview={handleReviewUpdated}
+      onDeleteReview={handleReviewDeleted}
+    />
+  ))
+)}
 
           {/* Modal Wishlist */}
           <WishlistForm

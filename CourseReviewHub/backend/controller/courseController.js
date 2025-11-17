@@ -73,7 +73,7 @@ export const getCourseById = async (req, res) => {
   try {
     const courseId = req.params.id;
 
-    // 1) ดึงข้อมูลวิชา
+    // 1) ดึงข้อมูลวิชา (เรามี 'course' ที่นี่)
     const { data: course, error: courseErr } = await supabase
       .from("courses")
       .select("*")
@@ -83,60 +83,83 @@ export const getCourseById = async (req, res) => {
     if (courseErr) throw courseErr;
     if (!course) return res.status(404).json({ error: "Course not found" });
 
-    // 2) ดึงรีวิวของคอร์ส
+    // 2) ดึงรีวิวของคอร์ส (พร้อม Author และ Reply)
     const { data: reviewsRaw, error: reviewErr } = await supabase
-  .from("reviews")
-  .select(`
-    *,
-    users ( username ),
-    instructor_replies (
-      id,
-      reply_text,
-      created_at,
-      instructor:users!instructor_replies_instructor_id_fkey (
-        id,
-        username,
-        role
-      )
-    )
-  `)
-  .eq("course_id", courseId)
-  .order("created_at", { ascending: false });
+      .from("reviews")
+      .select(`
+        *,
+        users ( username ),
+        instructor_replies (
+          id,
+          reply_text,
+          created_at,
+          instructor:users!instructor_replies_instructor_id_fkey (
+            id,
+            username,
+            role
+          )
+        )
+      `)
+      .eq("course_id", courseId)
+      .order("created_at", { ascending: false });
 
-if (reviewErr) throw reviewErr;
+    if (reviewErr) throw reviewErr;
 
-// 3) จัดรูปแบบข้อมูลรีวิว (ดึง reply ล่าสุดมาแสดง)
-//    (เราจะสร้างตัวแปร `author` ให้ Frontend ใช้ง่ายด้วย)
-const formattedReviews = (reviewsRaw || []).map(review => {
-  const latestReply = review.instructor_replies?.[0] || null;
-  return {
-    ...review,
-    author: review.users?.username || 'นิรนาม', // ส่งชื่อคนรีวิวไปที่ 'author'
-    instructor_reply: latestReply?.reply_text || null,
-    instructor: latestReply?.instructor || null, // ส่ง object อาจารย์ไปทั้งก้อน
-    instructor_reply_date: latestReply?.created_at || null,
-  };
-});
+    // ⬇️ === (นี่คือ "จุดที่แก้ไข" ครับ) === ⬇️
+    const formattedReviews = (reviewsRaw || []).map(review => {
+      const latestReply = review.instructor_replies?.[0] || null;
+      return {
+        ...review,
 
-    // 3) ส่งกลับในรูปแบบที่หน้า React ต้องการ
-   res.status(200).json({
-  course: {
-    id: course.id,
-    course_code: course.course_code,
-    name_th: course.name_th,
-    name_en: course.name_en,
-    credit: course.credit,
-    description: course.description,
-    instructor_summary: course.instructor_summary
-  },
-  reviews: formattedReviews // ⬅️ ส่ง reviews ใหม่ที่จัดรูปแบบแล้ว
-});
+        // (1. "ยัด" Course ที่เราดึงมา (ข้อ 1) เข้าไป)
+        course: {
+          id: course.id,
+          course_code: course.course_code,
+          name_th: course.name_th
+        },
+
+        // (2. เพิ่มข้อมูล Author)
+        author: review.users?.username || 'นักศึกษา',
+        authorId: review.user_id,
+
+        // (3. จัดรูปแบบ Ratings)
+        ratings: {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+
+        // (4. จัดรูปแบบ Reply)
+        instructor_reply: latestReply?.reply_text || null,
+        instructorName: latestReply?.instructor?.username || null,
+        instructor: latestReply?.instructor || null,
+      };
+    });
+    // ⬆️ === (สิ้นสุดการแก้ไข) === ⬆️
+
+    // 3) ส่งกลับ (ข้อมูลวิชา + รีวิวที่จัดรูปแบบแล้ว)
+    res.status(200).json({
+      course: {
+        id: course.id,
+        course_code: course.course_code,
+        name_th: course.name_th,
+        name_en: course.name_en,
+        credit: course.credit,
+        description: course.description,
+        instructor_summary: course.instructor_summary
+      },
+      reviews: formattedReviews // ⬅️ (ใช้ตัวที่จัดรูปแบบแล้ว)
+    });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 // ----------------------------------------------------------------
 // PATCH /api/courses/:id (UPDATE - อัปเดตรายวิชา)
 // ----------------------------------------------------------------

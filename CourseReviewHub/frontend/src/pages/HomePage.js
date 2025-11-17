@@ -31,51 +31,53 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    // ฟังก์ชันดึงข้อมูลจะทำงานต่อเมื่อ User Logged In แล้วเท่านั้น
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
-        // ================== FIX 1: แก้การดึงข้อมูล Course ==================
-        // 1. ดึงข้อมูลวิชาทั้งหมด (Public API)
-        // เปลี่ยน endpoint เป็น /courses/stats
-        const coursesRes = await apiClient.get('/courses/stats');
+      // 1. ดึงข้อมูลวิชาทั้งหมด
+      const coursesRes = await apiClient.get('/courses/stats');
+      setCourses(coursesRes.data.courses);
 
-        // เปลี่ยน setCourses เป็น coursesRes.data.courses
-        setCourses(coursesRes.data.courses);
-        // ================================================================
+      // 2. ดึงรีวิวล่าสุด
+      const reviewsRes = await apiClient.get('/reviews/latest');
+      
+      // ⬇️ เพิ่มการ debug เฉพาะ course
+      console.log('🔥 [Reviews] Total:', reviewsRes.data?.length);
+      console.log('📚 [Reviews] First Review Course:', reviewsRes.data[0]?.course);
+      
+      // เช็คว่าทุกรีวิวมี course ไหม
+      const withoutCourse = reviewsRes.data.filter(r => !r.course).length;
+      console.log(withoutCourse > 0 
+        ? `⚠️ มี ${withoutCourse} รีวิวที่ไม่มี course` 
+        : '✅ ทุกรีวิวมี course แล้ว'
+      );
+      
+      setLatestReviews(reviewsRes.data);
 
-        // 2. ดึงรีวิวล่าสุด (Private API - Interceptor จะแนบ Token ไปให้)
-        const reviewsRes = await apiClient.get('/reviews/latest');
-        setLatestReviews(reviewsRes.data);
-
-      } catch (err) {
-        console.error("Error fetching homepage data:", err);
-        setError("ไม่สามารถดึงข้อมูลวิชาหรือรีวิวได้");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (currentUser) {
-      fetchData();
+    } catch (err) {
+      console.error("Error fetching homepage data:", err);
+      setError("ไม่สามารถดึงข้อมูลวิชาหรือรีวิวได้");
+    } finally {
+      setLoading(false);
     }
-  }, [currentUser]);
+  };
 
-  // แสดงหน้าโหลดขณะรอ API
-  if (loading) {
-    return <div className="homepage-container"><Header /><div className="loading-state">กำลังโหลดข้อมูล...</div></div>;
+  if (currentUser) {
+    fetchData();
   }
-  if (error) {
-    return <div className="homepage-container"><Header /><div className="error-state">Error: {error}</div></div>;
-  }
+}, [currentUser]);
 
-  // ================== FIX 2: กรองวิชาที่มีรีวิวเท่านั้น ==================
-  // (นี่คือ 'if' ที่เราคุยกัน)
-  const coursesWithReviews = courses.filter(course => (course.review_count ?? 0) > 0);
-  // ====================================================================
+// แสดงหน้าโหลดขณะรอ API
+if (loading) {
+  return <div className="homepage-container"><Header /><div className="loading-state">กำลังโหลดข้อมูล...</div></div>;
+}
+if (error) {
+  return <div className="homepage-container"><Header /><div className="error-state">Error: {error}</div></div>;
+}
 
-
+// กรองวิชาที่มีรีวิวเท่านั้น
+const coursesWithReviews = courses.filter(course => (course.review_count ?? 0) > 0);
   // (โค้ดส่วนแสดงผลหลัก)
   return (
     <div className="homepage-container">
@@ -143,39 +145,39 @@ export default function HomePage() {
           รีวิวล่าสุด ({latestReviews.length} รายการ)
         </h3>
 
-        {latestReviews.length > 0 ? (
-          // เปลี่ยนมาใช้ .map() แทนการ hardcode [0], [1]
-          latestReviews.map(review => (
-            console.log('HomePage review:', review),
-  console.log('instructor:', review.instructor),
-           <ReviewCard
-  key={review.id}
-  review={{
-    id: review.id,
-    author: review.users?.username || 'นักศึกษา',
-    authorId: review.user_id,
-    grade: review.grade,
-    tags: review.tags || [],
-    ratings: {
-      satisfaction: review.rating_satisfaction,
-      difficulty: review.rating_difficulty,
-      workload: review.rating_workload,
-    },
-    content: {
-      prerequisite: review.content_prerequisite,
-      prosCons: review.content_pros_cons,
-      tips: review.content_tips,
-    },
-    instructor_reply: review.instructor_reply,
-    instructorName: review.instructor?.username,
-
-  }}
-/>
-          ))
-        ) : (
-          <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
-        )}
-        {/* ================================================================ */}
+       {latestReviews.length > 0 ? (
+  latestReviews.map(review => (
+    <ReviewCard
+      key={review.id}
+      review={{
+        id: review.id,
+        author: review.author || review.users?.username || 'นักศึกษา',
+        authorId: review.authorId || review.user_id,
+        grade: review.grade,
+        tags: review.tags || [],
+        
+        // ✅ เพิ่ม course
+        course: review.course,
+        
+        ratings: review.ratings || {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: review.content || {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+        instructor_reply: review.instructor_reply,
+        instructorName: review.instructorName || review.instructor?.username,
+        instructor: review.instructor,
+      }}
+    />
+  ))
+) : (
+  <p className="no-review-message">ยังไม่มีรีวิวในระบบ</p>
+)}
 
       </div>
     </div>

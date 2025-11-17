@@ -3,12 +3,16 @@ import React, { useState } from 'react';
 import { StarIcon, FireIcon, BookOpenIcon, DotsVerticalIcon } from '@heroicons/react/solid';
 import './ReviewCard.css'; // ใช้ CSS เดิมได้
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 export default function MyReviewCard({ review, onEdit, onDelete }) {
+  const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [openMenu, setOpenMenu] = useState(false);
+    console.log('review object', review);
+  console.log('username?', review.users?.username);
     if (!review) return null;
-
 
 
  const authorName = currentUser?.username || 'ไม่ระบุชื่อ';
@@ -34,21 +38,35 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
   };
 
   return (
-   console.log('review object', review),
-console.log('username?', review.users?.username),
+  
     <div className="review-card">
       <div className="review-card-content">
         {/* HEADER */}
-        <div className="review-header">
-          <div className="review-author-info">
-            <div className="review-author-avatar">{avatarInitial}</div>
-            <div className="review-author-details">
-              <div className="review-author-name">{authorName}</div>
-              <div className="review-author-grade">
-                เกรดที่ได้: <span className="grade-value">{review.grade || '-'}</span>
-              </div>
+      <div className="review-header">
+        <div className="review-author-info">
+          <div className="review-author-avatar">{avatarInitial}</div>
+          <div className="review-author-details">
+            <div className="review-author-name">{authorName}</div>
+            <div className="review-author-grade">
+              เกรดที่ได้: <span className="grade-value">{review.grade || '-'}</span>
             </div>
+
+            {/* ⬇️ === (นี่คือบรรทัดที่เพิ่มเข้ามาครับ!) === ⬇️ */}
+            {review.course && (
+              <div 
+                className="review-course-name" // (ใช้ CSS เดียวกัน)
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  navigate(`/courses/${review.course.id || review.course_id}`);
+                }}
+              >
+                {review.course.course_code} - {review.course.name_th}
+              </div>
+            )}
+            {/* ⬆️ === (สิ้นสุดบรรทัดที่เพิ่ม) === ⬆️ */}
+
           </div>
+        </div>
 
           {/* ปุ่มสามจุด */}
           <div className="review-menu-wrapper">

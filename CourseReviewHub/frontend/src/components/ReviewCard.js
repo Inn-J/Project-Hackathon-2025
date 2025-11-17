@@ -47,6 +47,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+   console.log('review object', review);
   const renderRating = (Icon, level, activeColorClass) => {
     return [...Array(5)].map((_, i) => (
       <Icon key={i} className={`rating-icon ${i < level ? activeColorClass : ''}`} />
@@ -137,7 +138,12 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
     );
   }
 };
-
+useEffect(() => {
+  console.log('🎴 ReviewCard received review:', review);
+    console.log('📚 Course:', review?.course);
+    console.log('👤 Author:', review?.author);
+    console.log('⭐ Ratings:', review?.ratings);
+}, [review]);
   // --- vote ---
   const handleHelpfulVote = async (isHelpful) => {
     if (!currentUser || !isStudent) return;
@@ -192,26 +198,38 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
         <div className="review-card-content">
 
         {/* HEADER */}
-          <div className="review-header">
-            {/* ⬇️ 4. (แก้ไข) ทำให้ส่วน author กดได้ ⬇️ */}
-            <div 
-              className="review-author-info review-author-info-clickable" // (เพิ่มคลาสใหม่)
-              onClick={goToUserProfile}
-              title={`ดูโปรไฟล์ของ ${review.author}`}
-            >
-              <div className="review-author-avatar">
-                {(review.author?.charAt(0) || 'U').toUpperCase()}
-              </div>
-              <div className="review-author-details">
-                <div className="review-author-name">
-                  {review.author}
-                  <span className="review-verified-badge">✓ ยืนยันแล้ว</span>
-                </div>
-                <div className="review-author-grade">
-                  เกรดที่ได้: <span className="grade-value">{review.grade}</span>
-                </div>
-              </div>
+      <div className="review-header">
+        {/* ⬇️ 4. (แก้ไข) ทำให้ส่วน author กดได้ ⬇️ */}
+        <div 
+          className="review-author-info review-author-info-clickable" // (เพิ่มคลาสใหม่)
+          onClick={goToUserProfile}
+          title={`ดูโปรไฟล์ของ ${review.author}`}
+        >
+          <div className="review-author-avatar">
+            {(review.author?.charAt(0) || 'U').toUpperCase()}
+          </div>
+          <div className="review-author-details">
+            <div className="review-author-name">
+              {review.author}
+              <span className="review-verified-badge">✓ ยืนยันแล้ว</span>
             </div>
+            <div className="review-author-grade">
+              เกรดที่ได้: <span className="grade-value">{review.grade}</span>
+            </div>
+            
+          {review.course && (
+              <div 
+                className="review-course-name" // (ใช้ CSS เดียวกัน)
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  navigate(`/courses/${review.course.id || review.course_id}`);
+                }}
+              >
+                {review.course.course_code} - {review.course.name_th}
+              </div>
+            )}
+          </div>
+        </div>
 
             {/* จุดสามจุด */}
             <div className="review-menu-wrapper" ref={menuRef}>
