@@ -9,6 +9,7 @@ import { getAuth } from 'firebase/auth';
 import 'firebase/auth';
 import Header from '../components/Header.js';
 import SettingsModal from '../components/SettingsModal.js';
+
 // --- Helper Function แปลงวันที่ ---
 const formatDate = (isoString) => {
   if (!isoString) return '';
@@ -41,11 +42,9 @@ function ProfileHeader({ currentUser, reviews }) {
       ? (reviews.reduce((sum, r) => sum + (r.rating_satisfaction || 0), 0) / reviews.length).toFixed(1)
       : '0';
 
-
-
   return (
     <>
-      <Header />,
+      <Header /> 
       <div className="profile-header">
         <div className="profile-header-info">
           <div className="profile-avatar">{avatarInitial}</div>
@@ -107,6 +106,17 @@ function ActivityItem({ icon, text, time }) {
   );
 }
 
+// --- Mockup Badges ---
+const dummyBadges = [
+  { id: 1, title: "ผู้ช่วยเหลือ", description: "ได้รับ 100+ helpful votes", unlocked: true, soon: false },
+  { id: 2, title: "นักเขียนมือทอง", description: "เขียนคำแนะนำ 10+ ครั้ง", unlocked: true, soon: false },
+  { id: 3, title: "ตรงประเด็น", description: "คะแนนเฉลี่ย 4.5+ ดาว", unlocked: true, soon: false },
+  { id: 4, title: "นักรีวิว", description: "เขียนคำแนะนำ 20+ ครั้ง", unlocked: false, soon: false },
+  { id: 5, title: "นักสำรวจ", description: "รีวิววิชาจาก 3+ คณะ", unlocked: true, soon: false },
+  { id: 6, title: "ผู้มีอิทธิพล", description: "คำแนะนำมีคนโหวต 500+ helpful", unlocked: false, soon: false }
+ 
+];
+
 // --- หน้าหลัก Profile ---
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('achievements');
@@ -156,15 +166,12 @@ export default function ProfilePage() {
   }, [currentUser]);
 
   const stats = profileData?.stats;
-  const badges = profileData?.badges;
+  const badges = profileData?.badges || dummyBadges; // ถ้าไม่มี badges ให้ใช้ mockup
   const activities = profileData?.activities;
 
   return (
     <div className="profile-page-container">
-
-
       {currentUser && <ProfileHeader currentUser={currentUser} reviews={reviews} />}
-
 
       <div className="profile-content-wrapper">
         <div className="profile-tabs">
@@ -250,23 +257,13 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {activeTab === 'reviews' && (
-              <div className="reviews-tab">
-                {/* ... โค้ด reviews ของคุณ ... */}
-              </div>
-            )}
-
-            {/************************************
-             * 👇 นี่คือส่วนที่เพิ่มกลับเข้าไป 👇
-             ************************************/}
             {activeTab === 'settings' && (
-              <div className="tab-placeholder"> {/* ใช้ class เดิมเพื่อให้มีกรอบสีขาว */}
+              <div className="tab-placeholder">
                 <h2 className="section-title">ตั้งค่าโปรไฟล์</h2>
                 <p className="section-description">
                   นี่คือข้อมูลโปรไฟล์ปัจจุบันของคุณ
                 </p>
 
-                {/* 1. ส่วนแสดงข้อมูล (อ่านอย่างเดียว) */}
                 <div className="settings-display">
                   <div className="setting-item">
                     <strong>ชื่อผู้ใช้:</strong>
@@ -282,7 +279,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* 2. ปุ่มสำหรับเปิด Modal */}
                 <button
                   className="edit-profile-btn"
                   onClick={() => setIsModalOpen(true)}
@@ -291,16 +287,10 @@ export default function ProfilePage() {
                 </button>
               </div>
             )}
-            {/************************************
-             * ☝️ สิ้นสุดส่วนที่เพิ่ม ☝️
-             ************************************/}
           </>
         )}
       </div>
 
-      {/*          ส่วนนี้ต้องมีเหมือนเดิมเป๊ะๆ นะครับ 
-         (โค้ด Modal ที่เราสร้างไว้)
-      */}
       {profileData && (
         <SettingsModal
           isOpen={isModalOpen}

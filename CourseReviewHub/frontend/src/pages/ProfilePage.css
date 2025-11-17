@@ -299,3 +299,116 @@
   margin-top: 6px;
   font-size: 15px;
 }
+/* -----------------------------
+   Badge Grid
+------------------------------ */
+.badge-grid {
+  display: grid;
+grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* -----------------------------
+   Badge Card
+------------------------------ */
+.badge-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
+  position: relative;
+}
+
+/* hover effect ให้ดูมีพลัง */
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* ถ้า unlock แล้ว */
+.badge-unlocked {
+  border: 2px solid #6D28D9; /* สีม่วงเด่น */
+}
+
+/* ถ้ายังไม่ unlock */
+.badge-card:not(.badge-unlocked):not(.badge-soon) {
+  opacity: 0.4;          /* ทำจางๆ */
+  filter: grayscale(60%); /* ทำสีจาง */
+}
+
+/* ถ้าเร็วๆ นี้ (Soon) */
+.badge-soon {
+  opacity: 0.6;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border: 2px dashed #d1d5db;
+}
+
+/* -----------------------------
+   Badge Icon
+------------------------------ */
+.badge-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* -----------------------------
+   Badge Title & Description
+------------------------------ */
+.badge-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: #111827;
+}
+
+.badge-description {
+  font-size: 0.85rem;
+  color: #4b5563;
+  min-height: 40px; /* ให้ทุกกล่องสูงเท่ากัน */
+}
+
+/* -----------------------------
+   Badge Status
+------------------------------ */
+.badge-status {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.badge-status.unlocked {
+  background-color: #6D28D9;
+  color: #fff;
+}
+
+.badge-status.soon {
+  background-color: #fbbf24;
+  color: #111827;
+}
+
+/* -----------------------------
+   ทำให้ badge มี glow เล็กๆ เมื่อ unlocked
+------------------------------ */
+.badge-unlocked::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(109, 40, 217, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.badge-unlocked:hover::after {
+  opacity: 1;
+}
