@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   StarIcon as StarSolid,
   FireIcon as FireSolid,
@@ -12,15 +12,6 @@ import {
 import "./ReviewForm.css";
 
 const GRADE_OPTIONS = ["A", "B+", "B", "C+", "C", "D", "F","-"];
-const TAG_OPTIONS = [
-  "คำสอนดีมาก",
-  "งานเยอะ",
-  "ต้องฝึกเองเยอะ",
-  "มี Presentation",
-  "เช็คชื่อเยอะ",
-  "สอบเยอะ",
-  "ทำงานกลุ่ม",
-];
 
 export default function ReviewFormModal({
   isOpen,
@@ -33,6 +24,8 @@ export default function ReviewFormModal({
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [tagOptions, setTagOptions] = useState([]);
+  const TAG_OPTIONS = useMemo(() => require(`../data/tags.json`).tags);
 
   // step 1
   const [satisfaction, setSatisfaction] = useState(0);
@@ -45,6 +38,7 @@ export default function ReviewFormModal({
   const [prerequisite, setPrerequisite] = useState("");
   const [prosCons, setProsCons] = useState("");
   const [tips, setTips] = useState("");
+  
 
   // โหลดค่าเดิมตอน edit หรือ reset ตอนเปิด modal
   useEffect(() => {

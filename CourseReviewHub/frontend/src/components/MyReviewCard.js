@@ -4,14 +4,16 @@ import { StarIcon, FireIcon, BookOpenIcon, DotsVerticalIcon } from '@heroicons/r
 import './ReviewCard.css'; // ใช้ CSS เดิมได้
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReviewFormModal from "../components/ReviewForm";
+import apiClient from '../services/axiosConfig';
 
 
-export default function MyReviewCard({ review, onEdit, onDelete }) {
+export default function MyReviewCard({ review, onEditReview, onDelete }) {
   const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [openMenu, setOpenMenu] = useState(false);
+    const [openEditModal, setOpenEditModal] = useState(false);
     if (!review) return null;
-
 
  const authorName = currentUser?.username || 'ไม่ระบุชื่อ';
   const avatarInitial = authorName.charAt(0).toUpperCase();
@@ -23,9 +25,39 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
     ));
   };
 
-  const handleEdit = () => {
-    onEdit?.(review);
-    setOpenMenu(false);
+  const handleEditSubmit = async (payload) => {
+    try {
+      // backend เป็น PATCH /api/reviews/:id
+      const res = await apiClient.patch(`/reviews/${review.id}`, payload);
+
+      setOpenEditModal(false);
+
+      if (onEditReview) {
+        onEditReview({
+          ...review,
+          grade: payload.grade,
+          tags: payload.tags,
+          ratings: {
+            satisfaction: payload.rating_satisfaction,
+            difficulty: payload.rating_difficulty,
+            workload: payload.rating_workload,
+          },
+          content: {
+            prerequisite: payload.content_prerequisite,
+            prosCons: payload.content_pros_cons,
+            tips: payload.content_tips,
+          },
+        });
+      }
+
+      alert("บันทึกการแก้ไขรีวิวเรียบร้อยแล้ว ✨");
+    } catch (err) {
+      console.error("edit review error:", err.response?.data || err);
+      alert(
+        err?.response?.data?.error ||
+          "ไม่สามารถบันทึกการแก้ไขรีวิวได้ กรุณาลองใหม่อีกครั้ง"
+      );
+    }
   };
 
   const handleDelete = () => {
@@ -44,7 +76,7 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
         <div className="review-author-info">
           <div className="review-author-avatar">{avatarInitial}</div>
           <div className="review-author-details">
-            <div className="review-author-name">{authorName}</div>
+            <div className="review-author-name">{review.users.username}</div>
             <div className="review-author-grade">
               เกรดที่ได้: <span className="grade-value">{review.grade || '-'}</span>
             </div>
@@ -77,9 +109,15 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
 
             {openMenu && (
               <div className="review-dropdown-menu">
-                <button className="dropdown-item" onClick={handleEdit}>
-                  แก้ไขรีวิว
-                </button>
+                 <button
+                        className="dropdown-item"
+                        onClick={() => {
+                          setOpenEditModal(true);
+                          setOpenMenu(false);
+                        }}
+                      >
+                        แก้ไขรีวิว
+                      </button>
                 <button className="dropdown-item dropdown-item--danger" onClick={handleDelete}>
                   ลบรีวิว
                 </button>
@@ -152,6 +190,24 @@ export default function MyReviewCard({ review, onEdit, onDelete }) {
 )}
 </div>
       </div>
+      <ReviewFormModal
+        isOpen={openEditModal}
+        mode="edit"
+        course={review.course}
+        initialReview={{
+          grade: review.grade,
+          tags: review.tags || [],
+          rating_satisfaction: review.ratings?.satisfaction || 0,
+          rating_difficulty: review.ratings?.difficulty || 0,
+          rating_workload: review.ratings?.workload || 0,
+          content_prerequisite: review.content?.prerequisite || '',
+          content_pros_cons: review.content?.prosCons || '',
+          content_tips: review.content?.tips || '',
+        }}
+        onClose={() => setOpenEditModal(false)}
+        onSubmit={handleEditSubmit}
+      />
     </div>
+    
   );
 }

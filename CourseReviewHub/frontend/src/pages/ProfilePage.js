@@ -44,7 +44,7 @@ function ProfileHeader({ currentUser, reviews }) {
 
   return (
     <>
-      <Header /> 
+      <Header />
       <div className="profile-header">
         <div className="profile-header-info">
           <div className="profile-avatar">{avatarInitial}</div>
@@ -114,7 +114,7 @@ const dummyBadges = [
   { id: 4, title: "นักรีวิว", description: "เขียนคำแนะนำ 20+ ครั้ง", unlocked: false, soon: false },
   { id: 5, title: "นักสำรวจ", description: "รีวิววิชาจาก 3+ คณะ", unlocked: true, soon: false },
   { id: 6, title: "ผู้มีอิทธิพล", description: "คำแนะนำมีคนโหวต 500+ helpful", unlocked: false, soon: false }
- 
+
 ];
 
 // --- หน้าหลัก Profile ---
@@ -123,6 +123,7 @@ export default function ProfilePage() {
   const { currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [myReplies, setMyReplies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,10 +151,23 @@ export default function ProfilePage() {
         setProfileData(profileRes.data);
 
         // --- ดึงรีวิวของผู้ใช้ ---
-        const reviewsRes = await apiClient.get('/reviews/my', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setReviews(reviewsRes.data);
+        const role = currentUser?.role;
+        if (role === 'INSTRUCTOR' || role === 'instructor') {
+          // ดึง "รีวิวที่ฉันตอบกลับ"
+          const repliesRes = await apiClient.get('/reviews/replies/my', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setMyReplies(repliesRes.data?.replies || []);
+          setReviews([]); // เคลียร์ reviews เดิม (กันสับสน)
+        } else {
+          // ดึง "รีวิวที่ฉันเขียนเอง"
+          const reviewsRes = await apiClient.get('/reviews/my', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setReviews(reviewsRes.data);
+          setMyReplies([]);
+        }
+
       } catch (err) {
         console.error('Failed to fetch profile or reviews:', err);
         setError('ไม่สามารถโหลดข้อมูลโปรไฟล์หรือรีวิวได้');
@@ -161,9 +175,22 @@ export default function ProfilePage() {
         setIsLoading(false);
       }
     };
-
     fetchProfileData();
   }, [currentUser]);
+
+  const isInstructor =
+    profileData?.role === 'INSTRUCTOR' || profileData?.role === 'instructor';
+
+  const headerReviews = isInstructor
+    ? (myReplies || []).map((rep) => ({
+      // ดึงข้อมูลรีวิวจาก nested reviews ใน myReplies
+      ...(rep.reviews || {}),
+      rating_satisfaction: rep.reviews?.rating_satisfaction ?? 0,
+      helpfulCount: rep.reviews?.helpfulCount ?? 0,
+      course_id: rep.reviews?.course_id,
+    }))
+    : reviews;
+
 
   const stats = profileData?.stats;
   const badges = profileData?.badges || dummyBadges; // ถ้าไม่มี badges ให้ใช้ mockup
@@ -179,8 +206,11 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('reviews')}
             className={`tab-button ${activeTab === 'reviews' ? 'active' : ''}`}
           >
-            คำแนะนำของฉัน
+            {profileData?.role === "INSTRUCTOR" || profileData?.role === "instructor"
+              ? "รีวิวที่ฉันตอบกลับ"
+              : "คำแนะนำของฉัน"}
           </button>
+
           <button
             onClick={() => setActiveTab('achievements')}
             className={`tab-button ${activeTab === 'achievements' ? 'active' : ''}`}
@@ -240,22 +270,50 @@ export default function ProfilePage() {
 
             {activeTab === 'reviews' && (
               <div className="reviews-tab">
-                <h2 className="section-title">รีวิวของฉัน</h2>
-                {reviews.length > 0
-                  ? reviews.map((review) => (
-                    <MyReviewCard
-                      key={review.id}
-                      review={review}
-                      currentUser={currentUser}
-                      onEdit={(r) => console.log('Edit review:', r)}
-                      onDelete={(id) =>
-                        setReviews((prev) => prev.filter((rev) => rev.id !== id))
-                      }
-                    />
-                  ))
-                  : <p>คุณยังไม่ได้เขียนรีวิว</p>}
+                {isInstructor ? (
+                  <>
+                    {myReplies.length > 0 ? (
+                      myReplies.map((rep) => (
+                        <MyReviewCard
+                          key={rep.id}
+                          review={{
+                            ...(rep.reviews || {}),
+                            instructor_reply: rep.reply_text,
+                            instructorName: profileData.username,
+                          }}
+                          currentUser={currentUser}
+                        // ถ้าจะเพิ่มปุ่มแก้ไข/ลบ reply ค่อยใส่ prop เพิ่มทีหลังได้
+                        />
+                      ))
+                    ) : (
+                      <p>คุณยังไม่ได้ตอบกลับรีวิวใดๆ</p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <h2 className="section-title">รีวิวของฉัน</h2>
+                    {reviews.length > 0 ? (
+                      reviews.map((review) => (
+                        <MyReviewCard
+                          key={review.id}
+                          review={review}
+                          currentUser={currentUser}
+                          onEdit={(r) => console.log('Edit review:', r)}
+                          onDelete={(id) =>
+                            setReviews((prev) =>
+                              prev.filter((rev) => rev.id !== id)
+                            )
+                          }
+                        />
+                      ))
+                    ) : (
+                      <p>คุณยังไม่ได้เขียนรีวิว</p>
+                    )}
+                  </>
+                )}
               </div>
             )}
+
 
             {activeTab === 'settings' && (
               <div className="tab-placeholder">

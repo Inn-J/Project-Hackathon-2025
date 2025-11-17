@@ -17,10 +17,11 @@ export default function Header() {
   const { currentUser } = useAuth();
 
   const emailPrefix = currentUser?.email?.split('@')[0] || 'Guest';
-  const profileInitial = emailPrefix.charAt(0).toUpperCase(); 
-  const usernameDisplay = currentUser?.username || emailPrefix; 
+  const profileInitial = emailPrefix.charAt(0).toUpperCase();
+  const usernameDisplay = currentUser?.username || emailPrefix;
   const roleDisplay = currentUser?.role || 'N/A';
-  
+  const isInstructor = currentUser?.role === "INSTRUCTOR";
+
   // ✅ โหลดรายการวิชามาใช้ autocomplete
   useEffect(() => {
     const fetchCourses = async () => {
@@ -36,9 +37,9 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); 
+      await signOut(auth);
       setIsMenuOpen(false);
-      navigate('/login'); 
+      navigate('/login');
     } catch (error) {
       console.error("Logout Error:", error);
     }
@@ -59,15 +60,15 @@ export default function Header() {
     trimmed.length === 0
       ? []
       : courses.filter((c) => {
-          const code = c.course_code?.toLowerCase() || '';
-          const en = c.name_en?.toLowerCase() || '';
-          const th = c.name_th?.toLowerCase() || '';
-          return (
-            code.includes(trimmed) ||
-            en.includes(trimmed) ||
-            th.includes(trimmed)
-          );
-        });
+        const code = c.course_code?.toLowerCase() || '';
+        const en = c.name_en?.toLowerCase() || '';
+        const th = c.name_th?.toLowerCase() || '';
+        return (
+          code.includes(trimmed) ||
+          en.includes(trimmed) ||
+          th.includes(trimmed)
+        );
+      });
 
   const limitedSuggestions = suggestionList.slice(0, 6); // แสดงสูงสุด 6 วิชา
 
@@ -87,7 +88,7 @@ export default function Header() {
   return (
     <div className="header-container">
       <h1 className="header-logo" onClick={() => navigate('/')}>CourseReviewHub</h1>
-      
+
       <div className="header-search-wrapper">
         <input
           type="text"
@@ -139,10 +140,10 @@ export default function Header() {
       </div>
 
       <div className="header-icons-area">
-        {currentUser && ( 
-          <NavLink 
-            to="/wishlist" 
-            className={({ isActive }) => 
+        {currentUser && !isInstructor && (
+          <NavLink
+            to="/wishlist"
+            className={({ isActive }) =>
               isActive ? "header-icon-button active" : "header-icon-button"
             }
             title="Wishlist"
@@ -150,10 +151,10 @@ export default function Header() {
             <BookmarkIcon className="header-icon" />
           </NavLink>
         )}
-        
+
         <div className="profile-menu-container">
-          <button 
-            className="header-icon-button profile-button" 
+          <button
+            className="header-icon-button profile-button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <span className="profile-initial">{profileInitial}</span>
@@ -165,13 +166,13 @@ export default function Header() {
                 <p className="profile-username">{usernameDisplay}</p>
                 <p className="profile-role">Role: {roleDisplay}</p>
               </div>
-              <button 
+              <button
                 className="dropdown-item"
                 onClick={() => { navigate('/profile'); setIsMenuOpen(false); }}
               >
                 <UserIcon className="dropdown-icon" /> My Profile
               </button>
-              <button 
+              <button
                 className="dropdown-item logout-item"
                 onClick={handleLogout}
               >

@@ -33,7 +33,7 @@ export default function CourseDetail() {
 
   // ✅ เช็คจาก context แทน state local
   const inWishlist = isCourseInWishlist(id);
-
+  const isInstructor = currentUser?.role === "INSTRUCTOR";
   const top5Tags = React.useMemo(() => {
     const counter = {};
 
@@ -196,27 +196,31 @@ export default function CourseDetail() {
 
           {/* ปุ่มบนขวา */}
           <div className="course-header-actions">
-            <button
-              className={`btn-save ${inWishlist ? "in-wishlist" : ""}`}
-              onClick={handleWishlistButtonClick}
-            >
-              {inWishlist ? "✓ อยู่ใน Wishlist แล้ว" : "Wishlist"}
-            </button>
+            {!isInstructor && (
+              <>
+                <button
+                  className={`btn-save ${inWishlist ? "in-wishlist" : ""}`}
+                  onClick={handleWishlistButtonClick}
+                >
+                  {inWishlist ? "✓ อยู่ใน Wishlist แล้ว" : "Wishlist"}
+                </button>
 
-            <button
-              className="btn-add-review"
-              onClick={() => setOpenReviewModal(true)}
-            >
-              + เขียนคำแนะนำ
-            </button>
+                <button
+                  className="btn-add-review"
+                  onClick={() => setOpenReviewModal(true)}
+                >
+                  + เขียนคำแนะนำ
+                </button>
 
-            <ReviewForm
-              isOpen={openReviewModal}
-              mode="create"
-              course={course}
-              onClose={() => setOpenReviewModal(false)}
-              onSubmit={handleCreateReview}
-            />
+                <ReviewForm
+                  isOpen={openReviewModal}
+                  mode="create"
+                  course={course}
+                  onClose={() => setOpenReviewModal(false)}
+                  onSubmit={handleCreateReview}
+                />
+              </>
+            )}
           </div>
         </div>
 

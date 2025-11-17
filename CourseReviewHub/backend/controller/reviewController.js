@@ -605,3 +605,57 @@ export const createReviewReply = async (req, res) => {
     res.status(500).json({ error: 'เกิดข้อผิดพลาดที่ Server' });
   }
 };
+
+export const getMyReviewReplies = async (req, res) => {
+  try {
+    const authUserId = req.user_id;
+
+    if (!authUserId) {
+      return res.status(401).json({ error: "ไม่พบ ID ผู้ใช้จาก Token" });
+    }
+
+    // หา role ของ user
+    const { data: user, error: userErr } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", authUserId)
+      .single();
+
+    if (userErr || !user) return res.status(404).json({ error: "ไม่พบผู้ใช้" });
+
+    if (user.role !== "INSTRUCTOR" && user.role !== "instructor") {
+      return res.status(403).json({ error: "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้" });
+    }
+
+    // ดึง replies ทั้งหมดของอาจารย์คนนี้
+    const { data, error } = await supabase
+      .from("instructor_replies")
+      .select(`
+        id,
+        reply_text,
+        created_at,
+        review_id,
+        reviews (
+          id,
+          grade,
+          tags,
+          rating_satisfaction,
+          rating_difficulty,
+          rating_workload,
+          content_prerequisite,
+          content_pros_cons,
+          content_tips,
+          users ( username )
+        )
+      `)
+      .eq("instructor_id", authUserId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return res.status(200).json({ replies: data });
+  } catch (err) {
+    console.error("getMyReviewReplies error:", err);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดภายใน Server" });
+  }
+};
