@@ -8,7 +8,8 @@ import {
   getAllUsers,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserPublicProfile
 } from "../controller/userController.js";
 
 const router = Router();
@@ -22,6 +23,7 @@ router.post("/register", registerUser);
 
 // (Private) ดึงข้อมูลโปรไฟล์และ Role ของตัวเอง
 router.get("/me", checkAuth, getUserProfile);
+router.get("/:id/profile", checkAuth, getUserPublicProfile);
 
 // ----------------------------------------------------------------
 // 🔒 เส้นทางสำหรับ Admin (ถ้ามี)

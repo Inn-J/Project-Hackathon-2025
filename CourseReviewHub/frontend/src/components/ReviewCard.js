@@ -1,5 +1,6 @@
 // src/components/ReviewCard.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/axiosConfig';
 import {
   StarIcon,
@@ -23,6 +24,7 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
   const [openEditModal, setOpenEditModal] = useState(false);
 
   const menuRef = useRef();
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   // ---- ROLE ----
@@ -171,6 +173,17 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
       alert("ส่งคำตอบไม่สำเร็จ");
     }
   };
+  const goToUserProfile = () => {
+    if (!review.authorId) return; // (กันพัง)
+    
+    if (isOwner) {
+      // ถ้าเป็นรีวิวเราเอง ให้ไปหน้า /profile
+      navigate('/profile');
+    } else {
+      // ถ้าเป็นรีวิวคนอื่น ให้ไปหน้า /user/:id
+      navigate(`/user/${review.authorId}`);
+    }
+  };
 
   return (
     <>
@@ -178,9 +191,14 @@ export default function ReviewCard({ review, onEditReview, onDeleteReview }) {
       <div className="review-card">
         <div className="review-card-content">
 
-          {/* HEADER */}
+        {/* HEADER */}
           <div className="review-header">
-            <div className="review-author-info">
+            {/* ⬇️ 4. (แก้ไข) ทำให้ส่วน author กดได้ ⬇️ */}
+            <div 
+              className="review-author-info review-author-info-clickable" // (เพิ่มคลาสใหม่)
+              onClick={goToUserProfile}
+              title={`ดูโปรไฟล์ของ ${review.author}`}
+            >
               <div className="review-author-avatar">
                 {(review.author?.charAt(0) || 'U').toUpperCase()}
               </div>

@@ -128,3 +128,75 @@ export const deleteUser = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+// ----------------------------------------------------------------
+// GET /api/users/:id/profile (ดึงโปรไฟล์สาธารณะของ "คนอื่น")
+// ----------------------------------------------------------------
+export const getUserPublicProfile = async (req, res) => {
+  try {
+    const { id } = req.params; // ID ของคนที่เราจะไปส่อง
+
+    // 1. ดึงข้อมูล User (ที่ปลอดภัย)
+    // ❌ (ห้าม) SELECT 'email' หรือ 'student_id'
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .select('id, username, faculty, role, created_at') // ⬅️ (เลือกเฉพาะข้อมูลสาธารณะ)
+      .eq('id', id)
+      .single();
+
+    if (userErr) throw userErr;
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // 2. ดึง "ทุก" รีวิวของ User คนนี้ (พร้อมชื่ออาจารย์ที่ตอบ และ ชื่อวิชา)
+    const { data: reviews, error: reviewsErr } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        users ( username ),
+        courses ( course_code, name_th ),
+        instructor_replies (
+          reply_text,
+          created_at,
+          instructor:users!instructor_replies_instructor_id_fkey (
+            username, role
+          )
+        )
+      `)
+      .eq('user_id', id)
+      .order('created_at', { ascending: false });
+
+    if (reviewsErr) throw reviewsErr;
+    
+    // 3. จัดรูปแบบรีวิว (เพื่อให้ ReviewCard ใช้งานได้เลย)
+    const formattedReviews = reviews.map(review => {
+      const latestReply = review.instructor_replies?.[0] || null;
+      return {
+        ...review,
+        author: review.users?.username || 'นักศึกษา', // (ส่งชื่อผู้เขียน)
+        authorId: review.user_id, // (ส่ง ID ผู้เขียน)
+        course: review.courses, // (ส่งข้อมูลวิชา)
+        // (แปลงข้อมูลให้ ReviewCard ใช้ง่าย)
+        ratings: {
+          satisfaction: review.rating_satisfaction,
+          difficulty: review.rating_difficulty,
+          workload: review.rating_workload,
+        },
+        content: {
+          prerequisite: review.content_prerequisite,
+          prosCons: review.content_pros_cons,
+          tips: review.content_tips,
+        },
+        instructor_reply: latestReply?.reply_text || null,
+        instructorName: latestReply?.instructor?.username || null,
+      };
+    });
+
+    // 4. ส่งกลับ
+    res.status(200).json({
+      user: user,
+      reviews: formattedReviews
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

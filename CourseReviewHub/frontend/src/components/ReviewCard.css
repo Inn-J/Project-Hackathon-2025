@@ -228,3 +228,16 @@
   color: #ffffff;
   font-weight: 600;
 }
+
+.review-author-info-clickable {
+  /* (เราใช้คลาสเดิม .review-author-info) */
+  /* (แต่เราเพิ่มตัวนี้เข้าไปเพื่อทำให้มัน "คลิกได้") */
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px; 
+  margin: -4px; /* (หักลบ padding) */
+  transition: background-color 0.2s;
+}
+.review-author-info-clickable:hover {
+  background-color: #f9f9f9; /* (สีเทาอ่อนๆ ตอน hover) */
+}

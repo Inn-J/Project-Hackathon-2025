@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 // ❌ ลบ Header/HeaderManager ออกจากตรงนี้
 import CourseDetail from './pages/CourseDetail';
 import WishlistPage from './pages/WishlistPage'; // ⬅️ 2. Import
+import PublicProfilePage from './pages/PublicProfilePage';
 
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
@@ -52,6 +53,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        
         <Route
           path="/profile"
           element={
@@ -78,7 +80,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+<Route 
+          path="/user/:userId" 
+          element={
+            <ProtectedRoute>
+              <PublicProfilePage />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </>
   );
