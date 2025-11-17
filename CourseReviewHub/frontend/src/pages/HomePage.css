@@ -6,26 +6,11 @@
 }
 
 .loading-state, .error-state {
-    text-align: center;
-    padding: 100px;
+  text-align: center;
+  padding: 100px;
 }
 .error-state {
-    color: #EF4444; /* แดง */
-}
-
-/*aa*/
-.home-search-button {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-}
-.home-search-button:hover .home-search-icon {
-  color: #6D28D9;
+  color: #EF4444; /* แดง */
 }
 
 /* 1. ส่วน Banner (สีม่วง) */
@@ -34,7 +19,8 @@
   padding: 32px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 .home-banner-title {
@@ -46,11 +32,13 @@
 }
 
 .home-status-message {
-    text-align: center;
-    color: #E0E7FF; /* ม่วงอ่อน */
-    font-size: 0.9rem;
-    margin: -10px 0 10px 0;
+  text-align: center;
+  color: #E0E7FF; /* ม่วงอ่อน */
+  font-size: 0.9rem;
+  margin: -10px 0 10px 0;
 }
+
+/* ---------- ช่องค้นหา + autocomplete ---------- */
 
 .home-search-wrapper {
   max-width: 768px; /* (max-w-2xl) */
@@ -58,24 +46,102 @@
   position: relative;
 }
 
+/* กล่องรวม input + ปุ่ม ให้เป็น pill */
+.home-search-inner {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 999px;
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
+}
+
 .home-search-input {
-  width: 100%;
+  flex: 1;
   font-size: 1.125rem; /* 18px */
-  border-radius: 8px;
-  padding: 12px 20px 12px 20px;
-  padding-right: 48px;
+  padding: 10px 16px;
   border: none;
+  outline: none;
   box-sizing: border-box;
+}
+
+/* ปุ่ม Search (อยู่ฝั่งขวาใน flex) */
+.home-search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.home-search-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .home-search-icon {
   height: 24px;
   width: 24px;
   color: #9CA3AF;
+}
+
+.home-search-button:hover .home-search-icon {
+  color: #6D28D9;
+}
+
+/* กล่อง Suggestion ใต้ช่องค้นหา */
+.home-search-suggestions {
   position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.home-search-suggestion-item {
+  width: 100%;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.home-search-suggestion-item + .home-search-suggestion-item {
+  border-top: 1px solid #F3F4F6;
+}
+
+.home-search-suggestion-item:hover {
+  background-color: #F9FAFB;
+}
+
+/* สไตล์ข้อความในแต่ละ suggestion row */
+.suggest-code {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.suggest-name-en {
+  font-size: 0.8rem;
+  color: #4B5563;
+}
+
+.suggest-name-th {
+  font-size: 0.8rem;
+  color: #6B7280;
 }
 
 /* 2. ส่วนเนื้อหาหลัก */
@@ -97,13 +163,13 @@
   display: flex;
   overflow-x: auto; /* ทำให้เลื่อนได้แนวนอน */
   padding-bottom: 16px;
-  margin: 0 -8px; 
+  margin: 0 -8px;
 }
 
 .no-review-message {
-    color: #6B7280;
-    text-align: center;
-    padding: 30px;
-    border: 1px dashed #D1D5DB;
-    border-radius: 8px;
+  color: #6B7280;
+  text-align: center;
+  padding: 30px;
+  border: 1px dashed #D1D5DB;
+  border-radius: 8px;
 }

@@ -13,6 +13,7 @@ export default function HomePage() {
   const [courses, setCourses] = useState([]);
   const [latestReviews, setLatestReviews] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false); // ✅ state สำหรับกล่อง suggest
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,10 +21,14 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   // ฟังก์ชันพาไปหน้า Search
-  const goSearch = () => {
-    const q = searchTerm.trim();
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
-    else navigate(`/search`);
+  const goSearch = (overrideTerm) => {
+    const q = (overrideTerm ?? searchTerm).trim();
+    if (q) {
+      navigate(`/search?q=${encodeURIComponent(q)}`);
+    } else {
+      navigate('/search');
+    }
+    setShowSuggestions(false);
   };
 
   useEffect(() => {
@@ -32,7 +37,6 @@ export default function HomePage() {
         setLoading(true);
 
         // 1) ดึง stat รายวิชาแบบ personalized ตามคณะของ user
-        // backend: GET /api/courses/faculty → { courses: [...] }
         const coursesRes = await apiClient.get('/courses/faculty');
         setCourses(coursesRes.data?.courses || []);
 
@@ -84,29 +88,43 @@ export default function HomePage() {
 
   // -------------------- Logic วิชาแนะนำ --------------------
 
-  // เอาเฉพาะวิชาที่มีรีวิว
   const coursesWithReviews = courses.filter(course => (course.review_count ?? 0) > 0);
 
-  // เรียงตามจำนวนรีวิว จากมาก → น้อย (ใช้เป็น base ทั้ง global และ personalized)
   const sortedByReviewCount = [...coursesWithReviews].sort(
     (a, b) => (b.review_count ?? 0) - (a.review_count ?? 0)
   );
 
   const userFaculty = currentUser?.faculty;
 
-  // วิชาที่มี "จำนวนรีวิวจากคณะเดียวกับ user > 0"
   const popularBySameFaculty = userFaculty
     ? sortedByReviewCount.filter(course => (course.same_faculty_reviewers ?? 0) > 0)
     : [];
 
-  // ถ้ามีวิชาคณะเดียวกัน → ใช้ list นั้น, ถ้าไม่มีเลย → fallback ไปใช้ global sorted
   const finalCoursesRaw =
     popularBySameFaculty.length > 0 ? popularBySameFaculty : sortedByReviewCount;
 
-  // จะจำกัดจำนวน เช่น top 10
   const finalCourses = finalCoursesRaw.slice(0, 10);
 
   const hasSameFacultyResult = userFaculty && popularBySameFaculty.length > 0;
+
+  // -------------------- Logic ของ Suggestion --------------------
+
+  const trimmed = searchTerm.trim().toLowerCase();
+  const suggestionList =
+    trimmed.length === 0
+      ? []
+      : courses.filter((c) => {
+          const code = c.course_code?.toLowerCase() || '';
+          const en = c.name_en?.toLowerCase() || '';
+          const th = c.name_th?.toLowerCase() || '';
+          return (
+            code.includes(trimmed) ||
+            en.includes(trimmed) ||
+            th.includes(trimmed)
+          );
+        });
+
+  const limitedSuggestions = suggestionList.slice(0, 6); // แสดงสูงสุด 6 วิชา
 
   // -------------------- Render --------------------
   return (
@@ -129,16 +147,68 @@ export default function HomePage() {
             goSearch();
           }}
         >
-          <input
-            type="text"
-            placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..."
-            className="home-search-input"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button type="submit" className="home-search-button" aria-label="ค้นหา">
-            <SearchIcon className="home-search-icon" />
-          </button>
+          <div className="home-search-inner">
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยรหัสวิชา หรือชื่อวิชา..."
+              className="home-search-input"
+              value={searchTerm}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearchTerm(value);
+                setShowSuggestions(value.trim().length > 0);
+              }}
+              onFocus={() => {
+                if (searchTerm.trim().length > 0) {
+                  setShowSuggestions(true);
+                }
+              }}
+              onBlur={() => {
+                // หน่วงให้คลิกปุ่ม suggestion ทัน
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
+            />
+            <button
+              type="submit"
+              className="home-search-button"
+              aria-label="ค้นหา"
+            >
+              <SearchIcon className="home-search-icon" />
+            </button>
+          </div>
+
+          {/* กล่อง Suggestion ใต้ช่องค้นหา */}
+          {showSuggestions && limitedSuggestions.length > 0 && (
+            <div className="home-search-suggestions">
+              {limitedSuggestions.map((course) => (
+                <button
+                  type="button"
+                  key={course.id || course.course_code}
+                  className="home-search-suggestion-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const query =
+                      course.course_code ||
+                      course.name_th ||
+                      course.name_en ||
+                      '';
+                    setSearchTerm(query);
+                    goSearch(query); // ยิงไปหน้า search พร้อมค่านี้
+                  }}
+                >
+                  <span className="suggest-code">
+                    {course.course_code || '-'}
+                  </span>
+                  <span className="suggest-name-en">
+                    {course.name_en || ''}
+                  </span>
+                  <span className="suggest-name-th">
+                    {course.name_th || ''}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </form>
       </div>
 
@@ -151,7 +221,7 @@ export default function HomePage() {
         </h3>
 
         <div className="home-course-scroll">
-          {finalCourses.map(course => (
+          {finalCourses.map((course) => (
             <CourseCard
               key={course.id}
               course={{
@@ -171,7 +241,7 @@ export default function HomePage() {
         </h3>
 
         {latestReviews.length > 0 ? (
-          latestReviews.map(review => (
+          latestReviews.map((review) => (
             <ReviewCard
               key={review.id}
               review={{
@@ -192,7 +262,8 @@ export default function HomePage() {
                   tips: review.content_tips,
                 },
                 instructor_reply: review.instructor_reply,
-                instructorName: review.instructorName || review.instructor?.username,
+                instructorName:
+                  review.instructorName || review.instructor?.username,
                 instructor: review.instructor,
               }}
             />

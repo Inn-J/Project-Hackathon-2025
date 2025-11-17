@@ -1,3 +1,5 @@
+/* ───────────────── Header หลัก ───────────────── */
+
 .header-container {
   display: flex;
   align-items: center;
@@ -18,4 +20,201 @@
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+
+
+.header-search-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+  margin: 0 32px;
+}
+
+.header-search-input {
+  width: 100%;
+  padding: 8px 14px;
+  padding-left: 40px;   /* ✅ เพิ่ม padding เผื่อที่ให้ icon ซ้าย */
+  padding-right: 14px;
+  border-radius: 999px;
+  border: 1px solid #E5E7EB;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.header-search-icon {
+  position: absolute;
+  left: 14px;          /* ✅ เปลี่ยนจาก right เป็น left */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9CA3AF;
+  pointer-events: none;
+}
+
+
+.header-search-input:focus {
+  border-color: #6D28D9;
+  box-shadow: 0 0 0 1px rgba(109, 40, 217, 0.2);
+}
+
+
+/* กล่อง suggestion ใต้ช่องค้นหา */
+.header-search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 40;
+}
+
+.header-search-suggestion-item {
+  width: 100%;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.header-search-suggestion-item + .header-search-suggestion-item {
+  border-top: 1px solid #F3F4F6;
+}
+
+.header-search-suggestion-item:hover {
+  background-color: #F9FAFB;
+}
+
+/* ใช้ร่วมกับ HomePage ได้เลย ถ้ายังไม่มีค่อยเพิ่ม */
+.suggest-code {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+}
+
+.suggest-name-en {
+  font-size: 0.8rem;
+  color: #4B5563;
+}
+
+.suggest-name-th {
+  font-size: 0.8rem;
+  color: #6B7280;
+}
+
+
+
+.header-icon-button {
+  border: none;
+  background: transparent;
+  padding: 6px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon-button.active {
+  background-color: #EEF2FF;
+}
+
+.header-icon-button:hover {
+  background-color: #F3F4FF;
+}
+
+.header-icon {
+  width: 22px;
+  height: 22px;
+  color: #4B5563;
+}
+
+.profile-menu-container {
+  position: relative;
+}
+
+.profile-button {
+  background-color: #EEF2FF;
+}
+
+.profile-initial {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background-color: #6D28D9;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* dropdown ขวาบน */
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  width: 220px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.profile-dropdown-user {
+  padding: 10px 14px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.profile-username {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111827;
+  margin: 0;
+}
+
+.profile-role {
+  font-size: 0.8rem;
+  color: #6B7280;
+  margin: 2px 0 0 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.dropdown-item:hover {
+  background-color: #F9FAFB;
+}
+
+.dropdown-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.logout-item {
+  color: #DC2626;
 }
