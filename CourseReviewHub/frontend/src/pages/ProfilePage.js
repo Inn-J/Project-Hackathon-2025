@@ -8,7 +8,7 @@ import apiClient from '../services/axiosConfig.js';
 import { getAuth } from 'firebase/auth';
 import 'firebase/auth';
 import Header from '../components/Header.js';
-
+import SettingsModal from '../components/SettingsModal.js';
 // --- Helper Function แปลงวันที่ ---
 const formatDate = (isoString) => {
   if (!isoString) return '';
@@ -31,8 +31,8 @@ function ProfileHeader({ currentUser, reviews }) {
   const avatarInitial = displayName.charAt(0).toUpperCase();
   const joinedDate = formatDate(currentUser?.created_at);
   const userRole = currentUser?.role || 'Member';
-const faculty = currentUser?.faculty || 'ไม่ระบุคณะ';
-const major = currentUser?.major || 'ไม่ระบุสาขา';
+  const faculty = currentUser?.faculty || 'ไม่ระบุคณะ';
+  const major = currentUser?.major || 'ไม่ระบุสาขา';
   const reviewCount = reviews.length;
   const helpfulCount = reviews.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
   const subjectsReviewed = new Set(reviews.map(r => r.course_id)).size;
@@ -42,42 +42,42 @@ const major = currentUser?.major || 'ไม่ระบุสาขา';
       : '0';
 
   console.log('reviews in header:', reviews);
-  
- 
+
+
   return (
     <>
-     <Header />,
-  <div className="profile-header">
-      <div className="profile-header-info">
-        <div className="profile-avatar">{avatarInitial}</div>
-        <div className="profile-details">
-          <h2 className="profile-name">{displayName}</h2>
-          <p className="profile-department">คณะ: {faculty}</p>
-          <p className="profile-department">สาขา: {major}</p>
-          <p className="profile-meta">เข้าร่วมเมื่อ {joinedDate}</p>
-          <p className="profile-meta">สิทธิ์ผู้ใช้: {userRole}</p>
+      <Header />,
+      <div className="profile-header">
+        <div className="profile-header-info">
+          <div className="profile-avatar">{avatarInitial}</div>
+          <div className="profile-details">
+            <h2 className="profile-name">{displayName}</h2>
+            <p className="profile-department">คณะ: {faculty}</p>
+            <p className="profile-department">สาขา: {major}</p>
+            <p className="profile-meta">เข้าร่วมเมื่อ {joinedDate}</p>
+            <p className="profile-meta">สิทธิ์ผู้ใช้: {userRole}</p>
+          </div>
+        </div>
+        <div className="profile-stats-grid">
+          <div className="profile-stat-box">
+            <div className="stat-number">{reviewCount}</div>
+            <div className="stat-label">คำแนะนำ</div>
+          </div>
+          <div className="profile-stat-box">
+            <div className="stat-number">{helpfulCount}</div>
+            <div className="stat-label">ความช่วยเหลือ</div>
+          </div>
+          <div className="profile-stat-box">
+            <div className="stat-number">{subjectsReviewed}</div>
+            <div className="stat-label">วิชาที่รีวิว</div>
+          </div>
+          <div className="profile-stat-box">
+            <div className="stat-number">{averageRating}</div>
+            <div className="stat-label">คะแนนเฉลี่ย</div>
+          </div>
         </div>
       </div>
-      <div className="profile-stats-grid">
-        <div className="profile-stat-box">
-          <div className="stat-number">{reviewCount}</div>
-          <div className="stat-label">คำแนะนำ</div>
-        </div>
-        <div className="profile-stat-box">
-          <div className="stat-number">{helpfulCount}</div>
-          <div className="stat-label">ความช่วยเหลือ</div>
-        </div>
-        <div className="profile-stat-box">
-          <div className="stat-number">{subjectsReviewed}</div>
-          <div className="stat-label">วิชาที่รีวิว</div>
-        </div>
-        <div className="profile-stat-box">
-          <div className="stat-number">{averageRating}</div>
-          <div className="stat-label">คะแนนเฉลี่ย</div>
-        </div>
-      </div>
-    </div>
-     </>
+    </>
   );
 }
 
@@ -116,6 +116,7 @@ export default function ProfilePage() {
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -163,7 +164,7 @@ export default function ProfilePage() {
     <div className="profile-page-container">
 
 
-     {currentUser && <ProfileHeader currentUser={currentUser} reviews={reviews} />}
+      {currentUser && <ProfileHeader currentUser={currentUser} reviews={reviews} />}
 
 
       <div className="profile-content-wrapper">
@@ -250,15 +251,67 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {activeTab === 'settings' && (
-              <div className="tab-placeholder">
-                <h2 className="section-title">ตั้งค่า</h2>
-                <p>... (ส่วนนี้จะเป็นฟอร์มแก้ไขโปรไฟล์) ...</p>
+            {activeTab === 'reviews' && (
+              <div className="reviews-tab">
+                {/* ... โค้ด reviews ของคุณ ... */}
               </div>
             )}
+
+            {/************************************
+             * 👇 นี่คือส่วนที่เพิ่มกลับเข้าไป 👇
+             ************************************/}
+            {activeTab === 'settings' && (
+              <div className="tab-placeholder"> {/* ใช้ class เดิมเพื่อให้มีกรอบสีขาว */}
+                <h2 className="section-title">ตั้งค่าโปรไฟล์</h2>
+                <p className="section-description">
+                  นี่คือข้อมูลโปรไฟล์ปัจจุบันของคุณ
+                </p>
+
+                {/* 1. ส่วนแสดงข้อมูล (อ่านอย่างเดียว) */}
+                <div className="settings-display">
+                  <div className="setting-item">
+                    <strong>ชื่อผู้ใช้:</strong>
+                    <span>{profileData.username || 'N/A'}</span>
+                  </div>
+                  <div className="setting-item">
+                    <strong>คณะ:</strong>
+                    <span>{profileData.faculty || 'ไม่ระบุ'}</span>
+                  </div>
+                  <div className="setting-item">
+                    <strong>สาขา:</strong>
+                    <span>{profileData.major || 'ไม่ระบุ'}</span>
+                  </div>
+                </div>
+
+                {/* 2. ปุ่มสำหรับเปิด Modal */}
+                <button
+                  className="edit-profile-btn"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  แก้ไขโปรไฟล์
+                </button>
+              </div>
+            )}
+            {/************************************
+             * ☝️ สิ้นสุดส่วนที่เพิ่ม ☝️
+             ************************************/}
           </>
         )}
       </div>
+
+      {/*          ส่วนนี้ต้องมีเหมือนเดิมเป๊ะๆ นะครับ 
+         (โค้ด Modal ที่เราสร้างไว้)
+      */}
+      {profileData && (
+        <SettingsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          userData={profileData}
+          onUpdate={(updatedData) => {
+            setProfileData(updatedData);
+          }}
+        />
+      )}
     </div>
   );
 }

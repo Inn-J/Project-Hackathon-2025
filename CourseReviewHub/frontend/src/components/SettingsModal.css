@@ -1,0 +1,64 @@
+/* src/components/SettingsModal.css */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 10px; right: 15px;
+  background: none; border: none;
+  font-size: 2rem; color: #aaa;
+  cursor: pointer; line-height: 1;
+}
+.modal-close-btn:hover { color: #333; }
+
+/* --- สไตล์ของฟอร์มข้างใน --- */
+.settings-form { margin-top: 16px; }
+.settings-form .form-group { margin-bottom: 16px; }
+.settings-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #374151;
+}
+.settings-form input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+.submit-btn {
+  background-color: #6D28D9;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+.submit-btn:hover { background-color: #5B21B6; }
+.form-message {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.875rem;
+}

@@ -91,23 +91,53 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// PATCH /api/users/:uid
 export const updateUser = async (req, res) => {
   try {
+    // -----------------------
+    // 1) ตรวจสอบ Token
+    // -----------------------
     const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: "ไม่พบ Token" });
+    if (!authHeader) {
+      return res.status(401).json({ error: "ไม่พบ Token" });
+    }
 
-    const token = authHeader.split(' ')[1];
-    // ตรวจสอบ token กับ Firebase / Supabase
     const uid = req.params.uid;
 
-    const { email, username, password, role } = req.body;
+    // -----------------------
+    // 2) รับค่าที่จะอัปเดต
+    // -----------------------
+    const { username } = req.body;
 
-    // logic อัปเดต user...
+    if (!username) {
+      return res.status(400).json({ error: "กรุณาระบุ username" });
+    }
 
-    res.json({ message: "อัปเดตผู้ใช้สำเร็จ" });
+    // -----------------------
+    // 3) อัปเดตฐานข้อมูล Supabase
+    // -----------------------
+    const { data, error } = await supabase
+      .from("users")
+      .update({ username })
+      .eq("id", uid)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Update failed:", error);
+      return res.status(500).json({ error: "อัปเดตไม่สำเร็จ" });
+    }
+
+    // -----------------------
+    // 4) ส่งข้อมูลใหม่กลับไปให้ frontend
+    // -----------------------
+    res.json({
+      message: "อัปเดตชื่อผู้ใช้สำเร็จ",
+      user: data
+    });
+
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์" });
   }
 };
 
