@@ -211,12 +211,14 @@ export default function ProfilePage() {
               : "คำแนะนำของฉัน"}
           </button>
 
-          <button
-            onClick={() => setActiveTab('achievements')}
-            className={`tab-button ${activeTab === 'achievements' ? 'active' : ''}`}
-          >
-            ความสำเร็จ
-          </button>
+          {profileData && profileData.role !== 'INSTRUCTOR' && profileData.role !== 'instructor' && (
+            <button
+              onClick={() => setActiveTab('achievements')}
+              className={`tab-button ${activeTab === 'achievements' ? 'active' : ''}`}
+            >
+              ความสำเร็จ
+            </button>
+          )}
           <button
             onClick={() => setActiveTab('settings')}
             className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
