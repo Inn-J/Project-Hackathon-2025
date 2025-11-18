@@ -255,36 +255,66 @@ export const getMyReviews = async (req, res) => {
         *,
         courses (course_code, name_th),
         users (username, role),
+        instructor_replies ( ... ), 
+        
+        // 👇 (1) เพิ่มบรรทัดนี้: ดึงข้อมูล vote ที่เป็น true มานับ
+        helpful_votes!inner (count) 
+      `)
+      .eq('user_id', userId)
+      .eq('helpful_votes.isHelpful', true) // นับเฉพาะที่เป็น true
+      // .count() // (Supabase มีวิธีนับที่ซับซ้อนกว่านี้ เดี๋ยวผมใช้วิธี JS ง่ายกว่า)
+      .order('created_at', { ascending: false });
+      
+    // ⚠️ หมายเหตุ: การนับ count ใน Supabase แบบ nested มันซับซ้อน
+    // เพื่อความง่ายและชัวร์ ผมแนะนำให้ดึงแบบเดิม แล้วมา query vote แยก หรือใช้ .rpc()
+    // แต่วิธีที่ "ง่ายที่สุด" และ "เร็วพอ" สำหรับตอนนี้คือ:
+    
+    // --- (วิธีที่ง่ายกว่า: ดึง reviews มาก่อน แล้ว loop หา vote) ---
+    
+    // 1. ดึง Reviews ทั้งหมดของฉัน (เหมือนเดิม)
+    const { data: reviewsData, error: reviewsError } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        courses (course_code, name_th),
+        users (username, role),
         instructor_replies (
-            id,
-            reply_text,
-            created_at,
-            instructor:users!instructor_replies_instructor_id_fkey (
-                id,
-                username,
-                role
-            )
+            id, reply_text, created_at,
+            instructor:users!instructor_replies_instructor_id_fkey (id, username, role)
         )
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (reviewsError) throw reviewsError;
 
-    // ⬇️ === (นี่คือ "จุดที่แก้ไข" ครับ) === ⬇️
-    const formattedData = data.map(review => {
+    // 2. (ใหม่) ดึง Vote ทั้งหมดที่เป็นของรีวิวเหล่านี้
+    //    (select * from helpful_votes where review_id in [1, 2, 3] and isHelpful = true)
+    const reviewIds = reviewsData.map(r => r.id);
+    
+    const { data: votesData, error: votesError } = await supabase
+      .from('helpful_votes')
+      .select('review_id')
+      .in('review_id', reviewIds) // หา vote ของรีวิวพวกนี้
+      .eq('isHelpful', true); // เอาเฉพาะ vote ที่เป็น true
+
+    if (votesError) throw votesError;
+
+    // 3. (ใหม่) จับคู่ Vote ใส่ Review
+    const formattedData = reviewsData.map(review => {
+      // นับจำนวน vote ที่ review_id ตรงกัน
+      const helpfulCount = votesData.filter(v => v.review_id === review.id).length;
+      
       const latestReply = review.instructor_replies?.[0] || null;
+      
       return {
         ...review,
+        helpfulCount: helpfulCount, // 👈 นี่คือพระเอกของเรา! ใส่ค่าที่นับได้
         
-        // (1. เพิ่มข้อมูล Course)
+        // (ส่วนอื่นๆ เหมือนเดิม)
         course: review.courses, 
-        
-        // (2. เพิ่มข้อมูล Author)
         author: review.users?.username || 'นักศึกษา',
         authorId: review.user_id,
-
-        // (3. จัดรูปแบบ Ratings)
         ratings: {
           satisfaction: review.rating_satisfaction,
           difficulty: review.rating_difficulty,
@@ -295,16 +325,14 @@ export const getMyReviews = async (req, res) => {
           prosCons: review.content_pros_cons,
           tips: review.content_tips,
         },
-
-        // (4. จัดรูปแบบ Reply)
         instructor_reply: latestReply?.reply_text || null,
         instructorName: latestReply?.instructor?.username || null,
         instructor: latestReply?.instructor || null,
       };
     });
-    // ⬆️ === (สิ้นสุดการแก้ไข) === ⬆️
 
     res.status(200).json(formattedData);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

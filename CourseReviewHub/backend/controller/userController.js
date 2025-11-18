@@ -45,17 +45,48 @@ export const registerUser = async (req, res) => {
 // ----------------------------------------------------------------
 export const getUserProfile = async (req, res) => {
   try {
-    // "ยาม" (checkAuth) ได้ตรวจตั๋วและแปะ user_id มาให้แล้ว
     const uid = req.user_id; 
 
-    const { data, error } = await supabase
+    // 1. ดึงข้อมูล User
+    const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("id,email, username, role, student_id, faculty, major,created_at") 
+      .select("id, email, username, role, student_id, faculty, major, created_at") 
       .eq("id", uid)
       .single();
+    
+    if (userError) throw userError;
 
-    if (error) throw error;
-    res.status(200).json(data);
+    // 2. (เพิ่ม) ดึงจำนวนรีวิวที่เขียน
+    const { count: reviewCount, error: countError } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true }) // head: true = ไม่เอาเนื้อหา เอาแต่จำนวน
+      .eq('user_id', uid);
+      
+    // 3. (เพิ่ม) ดึงจำนวน Helpful Votes ที่ "ได้รับ"
+    //    (หา review ของฉัน -> แล้วหา vote ของ review เหล่านั้น)
+    const { data: myReviews } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('user_id', uid);
+      
+    const myReviewIds = myReviews?.map(r => r.id) || [];
+    
+    const { count: helpfulCount } = await supabase
+      .from('helpful_votes')
+      .select('*', { count: 'exact', head: true })
+      .in('review_id', myReviewIds) // vote ที่อยู่ในรีวิวของฉัน
+      .eq('isHelpful', true); // เฉพาะที่เป็น true
+
+    // 4. รวมร่าง
+    const responseData = {
+      ...userData,
+      stats: {
+        reviewCount: reviewCount || 0,
+        helpfulCount: helpfulCount || 0
+      }
+    };
+
+    res.status(200).json(responseData);
 
   } catch (err) {
     res.status(500).json({ error: err.message });
