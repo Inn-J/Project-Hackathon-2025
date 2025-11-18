@@ -193,48 +193,62 @@ export const deleteUser = async (req, res) => {
 // ----------------------------------------------------------------
 export const getUserPublicProfile = async (req, res) => {
   try {
-    const { id } = req.params; // ID ของคนที่เราจะไปส่อง
+    const { id } = req.params;
 
-    // 1. ดึงข้อมูล User (ที่ปลอดภัย)
-    // ❌ (ห้าม) SELECT 'email' หรือ 'student_id'
+    // 1. ดึงข้อมูล User (เฉพาะข้อมูลสาธารณะ)
     const { data: user, error: userErr } = await supabase
       .from('users')
-      .select('id, username, faculty,major, role, created_at') // ⬅️ (เลือกเฉพาะข้อมูลสาธารณะ)
+      .select('id, username, faculty, major, role, created_at')
       .eq('id', id)
       .single();
 
-    if (userErr) throw userErr;
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (userErr || !user) return res.status(404).json({ error: 'User not found' });
 
-    // 2. ดึง "ทุก" รีวิวของ User คนนี้ (พร้อมชื่ออาจารย์ที่ตอบ และ ชื่อวิชา)
+    // 2. ดึง "ทุก" รีวิวของ User คนนี้
     const { data: reviews, error: reviewsErr } = await supabase
       .from('reviews')
       .select(`
         *,
-        users ( username ),
-        courses ( course_code, name_th ),
+        courses (id, course_code, name_th),
         instructor_replies (
-          reply_text,
-          created_at,
-          instructor:users!instructor_replies_instructor_id_fkey (
-            username, role
-          )
+          reply_text, created_at,
+          instructor:users!instructor_replies_instructor_id_fkey (username, role)
         )
       `)
       .eq('user_id', id)
       .order('created_at', { ascending: false });
 
     if (reviewsErr) throw reviewsErr;
+
+    // -------------------------------------------------------
+    // 👇 3. (เพิ่มใหม่) ดึงข้อมูล Helpful Votes ของรีวิวเหล่านี้
+    // -------------------------------------------------------
+    const reviewIds = reviews.map(r => r.id);
     
-    // 3. จัดรูปแบบรีวิว (เพื่อให้ ReviewCard ใช้งานได้เลย)
+    // ไปหาว่ารีวิวกลุ่มนี้ มีใครมากด isHelpful = true บ้าง
+    const { data: votes, error: votesErr } = await supabase
+      .from('helpful_votes')
+      .select('review_id')
+      .in('review_id', reviewIds)
+      .eq('isHelpful', true);
+
+    if (votesErr) throw votesErr;
+    // -------------------------------------------------------
+
+
+    // 4. จัดรูปแบบรีวิว (รวมคะแนนโหวตเข้าไป)
     const formattedReviews = reviews.map(review => {
+      // นับคะแนนโหวตของรีวิวนี้
+      const voteCount = votes.filter(v => v.review_id === review.id).length;
       const latestReply = review.instructor_replies?.[0] || null;
+
       return {
         ...review,
-        author: review.users?.username || 'นักศึกษา', // (ส่งชื่อผู้เขียน)
-        authorId: review.user_id, // (ส่ง ID ผู้เขียน)
-        course: review.courses, // (ส่งข้อมูลวิชา)
-        // (แปลงข้อมูลให้ ReviewCard ใช้ง่าย)
+        helpfulCount: voteCount, // ✅ ใส่คะแนนโหวตให้ Frontend ใช้
+        
+        author: user.username,   // ใช้ชื่อเจ้าของ Profile
+        authorId: user.id,
+        course: review.courses,
         ratings: {
           satisfaction: review.rating_satisfaction,
           difficulty: review.rating_difficulty,
@@ -250,10 +264,24 @@ export const getUserPublicProfile = async (req, res) => {
       };
     });
 
-    // 4. ส่งกลับ
+    // 5. (แถม) คำนวณ Stats ส่งไปให้เลย Frontend จะได้ไม่ต้องคิดเยอะ
+    const stats = {
+       reviewCount: reviews.length,
+       // นับจำนวนวิชาที่ไม่ซ้ำกัน (subjectsReviewed)
+       subjectsReviewed: new Set(reviews.map(r => r.course_id)).size, 
+       // รวมคะแนนช่วยเหลือทั้งหมด
+       totalHelpful: votes.length, 
+       // คะแนนเฉลี่ย
+       averageRating: reviews.length > 0 
+         ? (reviews.reduce((acc, r) => acc + r.rating_satisfaction, 0) / reviews.length).toFixed(1) 
+         : 0
+    };
+
+    // 6. ส่งกลับ
     res.status(200).json({
       user: user,
-      reviews: formattedReviews
+      reviews: formattedReviews,
+      stats: stats // ✅ ส่ง stats ไปด้วย
     });
 
   } catch (err) {
