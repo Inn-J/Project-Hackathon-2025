@@ -65,7 +65,7 @@ function ProfileHeader({ currentUser, reviews }) {
           </div>
           <div className="profile-stat-box">
             <div className="stat-number">{helpfulCount}</div>
-            <div className="stat-label">คะแนนรีวิว</div>
+            <div className="stat-label">ยอด Helpful Votes</div>
           </div>
           <div className="profile-stat-box">
             <div className="stat-number">{subjectsReviewed}</div>

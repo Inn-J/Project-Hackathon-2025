@@ -65,7 +65,7 @@ const major = profileUser?.major || 'ไม่ระบุสาขา';
         </div>
         <div className="profile-stat-box">
           <div className="stat-number">{helpfulCount}</div>
-          <div className="stat-label">ความช่วยเหลือ</div>
+          <div className="stat-label">ยอด Helpful Votes</div>
         </div>
         <div className="profile-stat-box">
           <div className="stat-number">{subjectsReviewed}</div>

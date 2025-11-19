@@ -88,7 +88,7 @@ function SettingsModal({ isOpen, onClose, userData, onUpdate }) {
 
                     {/* Major */}
                     <div className="form-group">
-                        <label>คณะ</label>
+                        <label>สาขา</label>
                         <div className="readonly-field">
                             {userData?.major || "ไม่ระบุ"}
                         </div>
