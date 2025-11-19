@@ -45,48 +45,50 @@ export const registerUser = async (req, res) => {
 // ----------------------------------------------------------------
 export const getUserProfile = async (req, res) => {
   try {
-    const uid = req.user_id; 
+    const uid = req.user_id;
 
     // 1. ดึงข้อมูล User
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("id, email, username, role, student_id, faculty, major, created_at") 
-      .eq("id", uid)
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .select('id, email, username, role, student_id, faculty, major, created_at')
+      .eq('id', uid)
       .single();
-    
-    if (userError) throw userError;
 
-    // 2. (เพิ่ม) ดึงจำนวนรีวิวที่เขียน
-    const { count: reviewCount, error: countError } = await supabase
+    if (userErr || !user) return res.status(404).json({ error: 'User not found' });
+
+    // 2. ดึงรีวิวของ user
+    const { data: reviews, error: reviewsErr } = await supabase
       .from('reviews')
-      .select('*', { count: 'exact', head: true }) // head: true = ไม่เอาเนื้อหา เอาแต่จำนวน
+      .select('id, rating_satisfaction')
       .eq('user_id', uid);
-      
-    // 3. (เพิ่ม) ดึงจำนวน Helpful Votes ที่ "ได้รับ"
-    //    (หา review ของฉัน -> แล้วหา vote ของ review เหล่านั้น)
-    const { data: myReviews } = await supabase
-      .from('reviews')
-      .select('id')
-      .eq('user_id', uid);
-      
-    const myReviewIds = myReviews?.map(r => r.id) || [];
-    
-    const { count: helpfulCount } = await supabase
+
+    if (reviewsErr) throw reviewsErr;
+
+    // 3. คำนวณ averageRating
+    const averageRating = reviews.length > 0
+      ? (reviews.reduce((acc, r) => acc + r.rating_satisfaction, 0) / reviews.length).toFixed(1)
+      : 0;
+
+    // 4. หา Helpful Votes จากรีวิวของเขา
+    const reviewIds = reviews.map(r => r.id);
+
+    const { count: helpfulCount, error: votesErr } = await supabase
       .from('helpful_votes')
       .select('*', { count: 'exact', head: true })
-      .in('review_id', myReviewIds) // vote ที่อยู่ในรีวิวของฉัน
-      .eq('isHelpful', true); // เฉพาะที่เป็น true
+      .in('review_id', reviewIds)
+      .eq('isHelpful', true);
 
-    // 4. รวมร่าง
-    const responseData = {
-      ...userData,
+    if (votesErr) throw votesErr;
+
+    // 5. ส่งกลับ
+    res.status(200).json({
+      ...user,
       stats: {
-        reviewCount: reviewCount || 0,
-        helpfulCount: helpfulCount || 0
+        reviewCount: reviews.length,
+        helpfulCount: helpfulCount || 0,
+        averageRating: Number(averageRating)
       }
-    };
-
-    res.status(200).json(responseData);
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

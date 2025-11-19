@@ -34,6 +34,8 @@ function ProfileHeader({ currentUser, reviews }) {
   const userRole = currentUser?.role || 'Member';
   const faculty = currentUser?.faculty || 'ไม่ระบุคณะ';
   const major = currentUser?.major || 'ไม่ระบุสาขา';
+  
+  // คำนวณ Stats สำหรับ Header
   const reviewCount = reviews.length;
   const helpfulCount = reviews.reduce((sum, r) => sum + (r.helpfulCount || 0), 0);
   const subjectsReviewed = new Set(reviews.map(r => r.course_id)).size;
@@ -106,20 +108,55 @@ function ActivityItem({ icon, text, time }) {
   );
 }
 
-// --- Mockup Badges ---
-const dummyBadges = [
-  { id: 1, title: "ผู้ช่วยเหลือ", description: "ได้รับ 100+ helpful votes", unlocked: true, soon: false },
-  { id: 2, title: "นักเขียนมือทอง", description: "เขียนคำแนะนำ 10+ ครั้ง", unlocked: true, soon: false },
-  { id: 3, title: "ตรงประเด็น", description: "คะแนนเฉลี่ย 4.5+ ดาว", unlocked: true, soon: false },
-  { id: 4, title: "นักรีวิว", description: "เขียนคำแนะนำ 20+ ครั้ง", unlocked: false, soon: false },
-  { id: 5, title: "นักสำรวจ", description: "รีวิววิชาจาก 3+ คณะ", unlocked: true, soon: false },
-  { id: 6, title: "ผู้มีอิทธิพล", description: "คำแนะนำมีคนโหวต 500+ helpful", unlocked: false, soon: false }
-
+// 🏆 1. (แก้ไข) นิยามกฎของ Badge เพื่อใช้เช็คกับข้อมูลจริง
+const BADGE_DEFINITIONS = [
+  {
+    id: 1,
+    title: "จุดเริ่มต้นที่ดี",
+    description: "เขียนรีวิววิชาแรกของคุณ",
+    check: (stats) => stats.reviewCount >= 1, // เช็คจำนวนรีวิว
+    soon: false
+  },
+  {
+    id: 2,
+    title: "เพื่อนคู่คิด",
+    description: "คำแนะนำของคุณมีประโยชน์ (ได้รับ 1 Helpful Vote)",
+    check: (stats) => stats.helpfulCount >= 1, // เช็คจำนวน Like
+    soon: false
+  },
+  {
+    id: 3,
+    title: "ขาประจำ",
+    description: "เขียนรีวิวครบ 5 วิชา",
+    check: (stats) => stats.reviewCount >= 5,
+    soon: false
+  },
+  {
+    id: 4,
+    title: "รีวิวคุณภาพ",
+    description: "เขียน 3 รีวิวขึ้นไป และได้คะแนนเฉลี่ย 4.0+",
+    check: (stats) => stats.reviewCount >= 3 && stats.averageRating >= 4.0,
+    soon: false
+  },
+  {
+    id: 5,
+    title: "ผู้ช่วยเหลือ (Level 2)",
+    description: "ได้รับ Helpful Votes รวม 20+ ครั้ง",
+    check: (stats) => stats.helpfulCount >= 20,
+    soon: false
+  },
+  {
+    id: 6,
+    title: "ตำนานแห่งคณะ",
+    description: "เขียนรีวิวครบ 20 วิชา",
+    check: (stats) => stats.reviewCount >= 20,
+    soon: true 
+  }
 ];
 
 // --- หน้าหลัก Profile ---
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('achievements');
+  const [activeTab, setActiveTab] = useState('reviews');
   const { currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -144,21 +181,21 @@ export default function ProfilePage() {
         // ดึง Firebase ID Token
         const token = await user.getIdToken(true);
 
-        // --- ดึงข้อมูลโปรไฟล์ ---
+        // --- ดึงข้อมูลโปรไฟล์ (จะได้ stats มาด้วยจาก Backend ที่แก้แล้ว) ---
         const profileRes = await apiClient.get('/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfileData(profileRes.data);
 
         // --- ดึงรีวิวของผู้ใช้ ---
-        const role = currentUser?.role;
+        const role = profileRes.data?.role; // ใช้ role จาก DB
         if (role === 'INSTRUCTOR' || role === 'instructor') {
           // ดึง "รีวิวที่ฉันตอบกลับ"
           const repliesRes = await apiClient.get('/reviews/replies/my', {
             headers: { Authorization: `Bearer ${token}` },
           });
           setMyReplies(repliesRes.data?.replies || []);
-          setReviews([]); // เคลียร์ reviews เดิม (กันสับสน)
+          setReviews([]); 
         } else {
           // ดึง "รีวิวที่ฉันเขียนเอง"
           const reviewsRes = await apiClient.get('/reviews/my', {
@@ -191,14 +228,25 @@ export default function ProfilePage() {
     }))
     : reviews;
 
+  // 🏆 2. (แก้ไข) คำนวณ Badge จาก Stats จริง
+  const stats = profileData?.stats || { reviewCount: 0, helpfulCount: 0, averageRating: 0 };
+  
+  const calculatedBadges = BADGE_DEFINITIONS.map(badgeDef => {
+    const isUnlocked = badgeDef.check(stats);
+    return {
+      id: badgeDef.id,
+      title: badgeDef.title,
+      description: badgeDef.description,
+      unlocked: isUnlocked, // ผลลัพธ์จริง
+      soon: badgeDef.soon && !isUnlocked
+    };
+  });
 
-  const stats = profileData?.stats;
-  const badges = profileData?.badges || dummyBadges; // ถ้าไม่มี badges ให้ใช้ mockup
   const activities = profileData?.activities;
 
   return (
     <div className="profile-page-container">
-      {currentUser && <ProfileHeader currentUser={currentUser} reviews={reviews} />}
+      {profileData && <ProfileHeader currentUser={profileData} reviews={headerReviews} />}
 
       <div className="profile-content-wrapper">
         <div className="profile-tabs">
@@ -206,12 +254,10 @@ export default function ProfilePage() {
             onClick={() => setActiveTab('reviews')}
             className={`tab-button ${activeTab === 'reviews' ? 'active' : ''}`}
           >
-            {profileData?.role === "INSTRUCTOR" || profileData?.role === "instructor"
-              ? "รีวิวที่ฉันตอบกลับ"
-              : "คำแนะนำของฉัน"}
+            {isInstructor ? "รีวิวที่ฉันตอบกลับ" : "คำแนะนำของฉัน"}
           </button>
 
-          {profileData && profileData.role !== 'INSTRUCTOR' && profileData.role !== 'instructor' && (
+          {!isInstructor && (
             <button
               onClick={() => setActiveTab('achievements')}
               className={`tab-button ${activeTab === 'achievements' ? 'active' : ''}`}
@@ -232,23 +278,22 @@ export default function ProfilePage() {
 
         {!isLoading && !error && profileData && (
           <>
-            {activeTab === 'achievements' && (
+            {activeTab === 'achievements' && !isInstructor && (
               <div className="tab-content-grid">
                 <div className="badge-section">
                   <h3 className="section-title">🏆 ความสำเร็จของคุณ</h3>
                   <p className="section-description">แบดจ์และความสำเร็จที่คุณได้รับจากการช่วยเหลือชุมชน</p>
                   <div className="badge-grid">
-                    {badges && badges.length > 0
-                      ? badges.map((badge) => (
-                        <BadgeCard
-                          key={badge.id}
-                          title={badge.title}
-                          description={badge.description}
-                          unlocked={badge.unlocked}
-                          soon={badge.soon || false}
-                        />
-                      ))
-                      : <p>ยังไม่มีความสำเร็จ</p>}
+                    {/* 👇 3. (แก้ไข) วนลูป calculatedBadges แทน dummyBadges */}
+                    {calculatedBadges.map((badge) => (
+                      <BadgeCard
+                        key={badge.id}
+                        title={badge.title}
+                        description={badge.description}
+                        unlocked={badge.unlocked}
+                        soon={badge.soon}
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -272,6 +317,7 @@ export default function ProfilePage() {
 
             {activeTab === 'reviews' && (
               <div className="reviews-tab">
+                <h2 className="section-title">{isInstructor ? "รีวิวที่ฉันตอบกลับ" : "รีวิวของฉัน"}</h2>
                 {isInstructor ? (
                   <>
                     {myReplies.length > 0 ? (
@@ -283,8 +329,7 @@ export default function ProfilePage() {
                             instructor_reply: rep.reply_text,
                             instructorName: profileData.username,
                           }}
-                          currentUser={currentUser}
-                        // ถ้าจะเพิ่มปุ่มแก้ไข/ลบ reply ค่อยใส่ prop เพิ่มทีหลังได้
+                          currentUser={profileData}
                         />
                       ))
                     ) : (
@@ -298,12 +343,10 @@ export default function ProfilePage() {
                         <MyReviewCard
                           key={review.id}
                           review={review}
-                          currentUser={currentUser}
+                          currentUser={profileData}
                           onEdit={(r) => console.log('Edit review:', r)}
                           onDelete={(id) =>
-                            setReviews((prev) =>
-                              prev.filter((rev) => rev.id !== id)
-                            )
+                            setReviews((prev) => prev.filter((rev) => rev.id !== id))
                           }
                         />
                       ))
@@ -314,7 +357,6 @@ export default function ProfilePage() {
                 )}
               </div>
             )}
-
 
             {activeTab === 'settings' && (
               <div className="tab-placeholder">
