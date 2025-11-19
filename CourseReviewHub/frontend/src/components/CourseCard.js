@@ -55,16 +55,16 @@ export default function CourseCard({ course }) {
       <div className="course-reviews">
         {course.reviewCount} คำแนะนำ
       </div>
+      
     </div>
 
-    <button className="course-title">{course.title}</button>
-    
-    <div className="course-metric">
-      <span className="metric-label">ความพอใจ:</span>
+    <button className="course-title">{course.title} </button>
+     <div className="course-metric">
       <span className="metric-icons">
         {renderLevelIcons(StarIcon, course.satisfaction, 'rating-yellow')}
       </span>
     </div>
+   
 
     <div className="course-difficulty">
       <span className="difficulty-label">ความยาก:</span>

@@ -18,7 +18,7 @@ export default function SearchPage() {
 
   const [sortBy, setSortBy] = useState('review_count');
   const [difficultyFilter, setDifficultyFilter] = useState(null);
-  const [workloadFilter, setWorkloadFilter] = useState(null);
+  
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -51,17 +51,7 @@ export default function SearchPage() {
     .filter(c =>
       difficultyFilter ? Math.round(c.difficulty || 0) === difficultyFilter : true
     )
-    // ⭐ ใช้ c.workload (ไม่ใช่ workload_avg)
-    .filter(c => {
-      if (!workloadFilter) return true;
-      const rounded = Math.round(c.workload || 0);
-
-      if (workloadFilter === 'low') return rounded === 1 || rounded === 2;
-      if (workloadFilter === 'medium') return rounded === 3;
-      if (workloadFilter === 'high') return rounded === 4 || rounded === 5;
-
-      return true;
-    })
+    
     .sort((a, b) => {
       if (sortBy === 'difficulty_asc') {
         return (a.difficulty || 0) - (b.difficulty || 0);
@@ -136,30 +126,7 @@ export default function SearchPage() {
                 </div>
               </div>
 
-              <div className="filter-group">
-                <h4 className="filter-group-title">ปริมาณงาน</h4>
-                <div className="workload-buttons">
-                  <button
-                    className={`filter-workload-button ${workloadFilter === 'low' ? 'active' : ''}`}
-                    onClick={() => toggleFilter(setWorkloadFilter, 'low')}
-                  >
-                    น้อย
-                  </button>
-                  <button
-                    className={`filter-workload-button ${workloadFilter === 'medium' ? 'active' : ''}`}
-                    onClick={() => toggleFilter(setWorkloadFilter, 'medium')}
-                  >
-                    ปานกลาง
-                  </button>
-                  <button
-                    className={`filter-workload-button ${workloadFilter === 'high' ? 'active' : ''}`}
-                    onClick={() => toggleFilter(setWorkloadFilter, 'high')}
-                  >
-                    มาก
-                  </button>
-                </div>
-              </div>
-
+             
             </div>
           </aside>
 

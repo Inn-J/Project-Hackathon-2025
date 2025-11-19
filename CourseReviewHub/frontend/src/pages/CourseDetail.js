@@ -8,7 +8,7 @@ import ReviewForm from "../components/ReviewForm";
 import WishlistForm from "../components/WishlistForm";
 import {
   FireIcon,
-  BookOpenIcon
+  BookOpenIcon,StarIcon
 } from '@heroicons/react/solid';
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
@@ -70,6 +70,10 @@ export default function CourseDetail() {
 
   if (loading) return <div>กำลังโหลดข้อมูล...</div>;
   if (!course) return <div>ไม่พบข้อมูลรายวิชา</div>;
+
+  const avgSatisfaction = reviews.length
+    ? reviews.reduce((sum, r) => sum + (r.rating_satisfaction || 0), 0) / reviews.length
+    : 0;
 
   // ค่าเฉลี่ยจากรีวิว
   const avgDifficulty = reviews.length
@@ -168,8 +172,12 @@ export default function CourseDetail() {
           <span className="course-code">{course.course_code}</span>
           <h1 className="course-title-th">{course.name_th}</h1>
           <h1 className="course-title-en">{course.name_en}</h1>
-
+         
           <div className="course-meta">
+             <div className="meta-item">
+              ความพึงพอใจเฉลี่ย
+             {renderAvgIcons(StarIcon, avgSatisfaction, 'rating-yellow')}
+            </div>
             <div className="meta-item">
               ความยากเฉลี่ย
               {renderAvgIcons(FireIcon, avgDifficulty, "rating-orange")}
@@ -180,6 +188,7 @@ export default function CourseDetail() {
               {renderAvgIcons(BookOpenIcon, avgWorkload, "rating-blue")}
             </div>
           </div>
+
 
           {top5Tags.length > 0 && (
             <div className="top5-tags-container">
