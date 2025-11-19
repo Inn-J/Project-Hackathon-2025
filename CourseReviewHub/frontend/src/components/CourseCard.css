@@ -55,6 +55,29 @@
   text-decoration: underline;
 }
 
+.course-metric {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  gap: 4px;
+}
+.metric-label {
+  color: #4B5563;
+  margin-right: 8px;
+}
+
+/* ====== Icons ====== */
+.metric-icons svg {
+  height: 18px;
+  width: 18px;
+  color: #e5e7eb; /* default gray */
+}
+
+/* ความพอใจ: yellow */
+.rating-yellow {
+  color: #facc15 !important;
+}
+
 /* ความยาก */
 .course-difficulty {
   display: flex;
@@ -76,12 +99,38 @@
   color: #F97316;
 }
 
-/* จำนวนรีวิว */
-.course-reviews {
+.course-workload {
+  display: flex;
+  align-items: center;
   margin-top: 12px;
-  color: #6B7280;
-  font-size: 0.875rem;
 }
+
+.workload-label {
+  color: #4B5563;
+  margin-right: 8px;
+}
+
+.workload-icon {
+  width: 18px;
+  height: 18px;
+  color: #d1d5db;
+}
+
+.workload-icon.active {
+  color: #3b82f6; /* blue */
+}
+
+
+/* จำนวนรีวิว */
+/* ชิดขวา */
+.course-reviews {
+  font-size: 0.8rem;
+  color: #6B7280;
+  margin: 0;
+  padding: 0;
+}
+
+
 
 /* ปุ่มล่าง */
 .course-button {
@@ -98,3 +147,11 @@
 .course-button:hover {
   background-color: #14B8A6;
 }
+
+.course-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+

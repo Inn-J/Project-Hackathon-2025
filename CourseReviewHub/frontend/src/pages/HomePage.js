@@ -120,6 +120,7 @@ export default function HomePage() {
         });
 
   const limitedSuggestions = suggestionList.slice(0, 6); // แสดงสูงสุด 6 วิชา
+  console.log(finalCourses[0]);
 
   // -------------------- Render --------------------
   return (
@@ -223,7 +224,9 @@ export default function HomePage() {
                 id: course.id,
                 code: course.course_code,
                 title: course.name_th,
+                satisfaction: course.satisfaction ?? 0,
                 difficulty: course.difficulty ?? 0,
+                workload: course.workload ?? 0,
                 reviewCount: course.review_count ?? 0,
               }}
             />

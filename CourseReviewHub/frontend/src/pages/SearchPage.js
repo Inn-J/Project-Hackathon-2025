@@ -183,7 +183,9 @@ export default function SearchPage() {
                       id: course.id,
                       code: course.course_code,
                       title: course.name_th,
+                      satisfaction: course.satisfaction ?? 0,
                       difficulty: course.difficulty ?? 0,
+                      workload: course.workload ?? 0,
                       reviewCount: course.review_count ?? 0
                     }}
                   />

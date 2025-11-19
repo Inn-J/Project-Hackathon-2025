@@ -261,18 +261,22 @@ export const getReviewByFaculty = async (req, res) => {
 
     const userFaculty = user.faculty || null;
 
+    // รายวิชา
     const { data: courses, error: coursesErr } = await supabase
       .from('courses')
-      .select('id, course_code, name_th,name_en');
+      .select('id, course_code, name_th, name_en');
 
     if (coursesErr) throw coursesErr;
 
+    // รีวิว + คะแนนทั้งหมด
     const { data: reviews, error: reviewsErr } = await supabase
       .from('reviews')
       .select(`
         id,
         course_id,
         rating_difficulty,
+        rating_workload,
+        rating_satisfaction,
         users (
           faculty
         )
@@ -290,13 +294,19 @@ export const getReviewByFaculty = async (req, res) => {
         statsByCourse.set(courseId, {
           review_count: 0,
           difficultySum: 0,
+          workloadSum: 0,
+          satisfactionSum: 0,       // ⭐ เพิ่ม field
           sameFacultyCount: 0,
         });
       }
 
       const stat = statsByCourse.get(courseId);
+
       stat.review_count += 1;
+
       stat.difficultySum += Number(review.rating_difficulty || 0);
+      stat.workloadSum += Number(review.rating_workload || 0);
+      stat.satisfactionSum += Number(review.rating_satisfaction || 0); // ⭐ เพิ่ม sum
 
       const reviewerFaculty = review.users?.faculty || null;
       if (userFaculty && reviewerFaculty === userFaculty) {
@@ -304,23 +314,37 @@ export const getReviewByFaculty = async (req, res) => {
       }
     }
 
+    // สร้างผลลัพธ์รายวิชา
     let result = courses.map((course) => {
       const s = statsByCourse.get(course.id) || {
         review_count: 0,
         difficultySum: 0,
+        workloadSum: 0,
+        satisfactionSum: 0,
         sameFacultyCount: 0,
       };
 
       const review_count = s.review_count;
+
       const difficulty =
         review_count > 0 ? s.difficultySum / review_count : 0;
+
+      const workload =
+        review_count > 0 ? s.workloadSum / review_count : 0;
+
+      const satisfaction =
+        review_count > 0 ? s.satisfactionSum / review_count : 0; // ⭐ เพิ่มคำนวณ
 
       return {
         id: course.id,
         course_code: course.course_code,
         name_th: course.name_th,
         name_en: course.name_en,
+
         difficulty,
+        workload,
+        satisfaction,   // ⭐ ส่งออกให้ FE
+
         review_count,
         same_faculty_reviewers: s.sameFacultyCount,
       };
@@ -335,5 +359,3 @@ export const getReviewByFaculty = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
-
-
