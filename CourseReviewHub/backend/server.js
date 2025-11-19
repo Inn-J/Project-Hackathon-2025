@@ -6,6 +6,7 @@ import courseRoute from "./routes/courseRoute.js";
 import reviewRoute from "./routes/reviewRoute.js";
 import reportRoute from "./routes/reportRoute.js";
 import wishlistRoutes from "./routes/wishlistRoute.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/courses', courseRoute);
 app.use('/api/reviews', reviewRoute);
 app.use('/api/reports',reportRoute);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

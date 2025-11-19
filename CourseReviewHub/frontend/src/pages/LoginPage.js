@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './AuthLayout.css';
 import { useNavigate } from 'react-router-dom';
-import { MailIcon, LockClosedIcon,UserCircleIcon } from '@heroicons/react/solid';
+import { MailIcon, LockClosedIcon, UserCircleIcon } from '@heroicons/react/solid';
 import { auth } from '../services/firebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'; 
 import axios from '../services/axiosConfig';
@@ -20,10 +20,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // 1. Login Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
-      const response = await axios.get('/users/me');
-      navigate('/');
+      const user = userCredential.user;
+      
+      // 2. Get Token
+      const idToken = await user.getIdToken();
+      
+      // 3. Call Backend to get Role
+      const response = await axios.get('/users/me', {
+        headers: { Authorization: `Bearer ${idToken}` }
+      });
+
+      const userData = response.data;
+      const role = userData?.role; // เช็ค role
+
+      // 4. Navigate based on Role
+      if (role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+
     } catch (err) {
       console.error('Login Error:', err);
       if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
@@ -98,22 +116,18 @@ export default function LoginPage() {
 
             {error && <p style={{ color: 'red', textAlign: 'center', fontSize: '14px', marginTop: '10px' }}>{error}</p>}
 
-            {/* ⬇️ === (จุดที่ 1: เพิ่ม/ย้ายมาตรงนี้) === ⬇️ */}
             <div className="forgot-password-container">
               <span className="auth-link" onClick={handlePasswordReset}>
                 Forget Password?
               </span>
             </div>
-            {/* ⬆️ === สิ้นสุดจุดที่เพิ่ม === ⬆️ */}
 
             <button type="submit" className="auth-button" disabled={loading}>
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'Login'}
             </button>
           </form>
           
-          {/* ⬇️ === (จุดที่ 2: แก้ไขส่วนล่าง) === ⬇️ */}
           <div className="auth-link-container">
-            {/* (ลบ "ลืมรหัสผ่าน?" และ "|" ออกจากตรงนี้) */}
             Don't have an account?{' '}
             <span className="auth-link" onClick={() => navigate('/signup')}>
               Sign Up
