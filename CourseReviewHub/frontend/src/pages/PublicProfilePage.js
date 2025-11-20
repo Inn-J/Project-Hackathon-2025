@@ -87,9 +87,6 @@ function BadgeCard({ title, description, unlocked, soon }) {
 
 // --- Component ย่อย: Activity ---
 // (Component นี้เหมือนใน ProfilePage.jsx เป๊ะๆ ครับ)
-function ActivityItem({ icon, text, time }) {
-  // ... (โค้ด ActivityItem เหมือนเดิม) ...
-}
 
 
 // --- หน้าหลัก (Public) Profile ---
@@ -140,8 +137,7 @@ export default function PublicProfilePage() {
 
   // (ดึง Stats/Badges/Activities จาก profileData)
   const badges = profileData?.badges;
-  const activities = profileData?.activities;
-
+  
   return (
     <>
       <Header /> {/* ⬅️ (เรียก Header) */}

@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { WishlistProvider } from './context/WishlistContext';
+import ScrollToTop from "./ScrollToTop";
 
 // --- Import Pages ---
 import LoginPage from './pages/LoginPage';
@@ -112,6 +113,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <AuthProvider>
         <WishlistProvider>
           <AppRoutes />
