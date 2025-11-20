@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // ⬅️ (สำคัญ)
 import ReviewCard from '../components/ReviewCard.js'; // ⬅️ (สำคัญ) ใช้การ์ดสาธารณะ
 import { useAuth } from '../context/AuthContext.js';
-import { ClockIcon } from '@heroicons/react/solid';
 import './ProfilePage.css'; // (ใช้ CSS เดียวกันเป๊ะ!)
 import apiClient from '../services/axiosConfig.js';
 import Header from '../components/Header'; // ⬅️ (เรียก Header)
@@ -95,7 +94,7 @@ function ActivityItem({ icon, text, time }) {
 
 // --- หน้าหลัก (Public) Profile ---
 export default function PublicProfilePage() {
-  const [activeTab, setActiveTab] = useState('achievements');
+  const [activeTab, setActiveTab] = useState('reviews');
   const { userId } = useParams(); // ⬅️ (สำคัญ) ดึง ID จาก URL
   const { currentUser } = useAuth(); // (ดึง User ปัจจุบันไว้เช็ค)
   const navigate = useNavigate(); // ⬅️ (ไว้เด้งกลับ)
@@ -140,7 +139,6 @@ export default function PublicProfilePage() {
   }, [userId, isMyProfile, navigate]); // (ทำงานใหม่ถ้า ID เปลี่ยน)
 
   // (ดึง Stats/Badges/Activities จาก profileData)
-  const stats = profileData?.stats;
   const badges = profileData?.badges;
   const activities = profileData?.activities;
 
@@ -160,12 +158,7 @@ export default function PublicProfilePage() {
             >
               คำแนะนำ (Reviews)
             </button>
-            <button
-              onClick={() => setActiveTab('achievements')}
-              className={`tab-button ${activeTab === 'achievements' ? 'active' : ''}`}
-            >
-              ความสำเร็จ (Achievements)
-            </button>
+            
             
             {/* ❌ (ลบ) "ตั้งค่า" (Settings) ออกไป (เพื่อความปลอดภัย) ❌ */}
             
@@ -196,21 +189,7 @@ export default function PublicProfilePage() {
                     </div>
                   </div>
 
-                  <div className="activity-section">
-                    <h3 className="section-title">📊 กิจกรรมล่าสุด</h3>
-                    <div className="activity-feed">
-                      {activities && activities.length > 0
-                        ? activities.map((activity) => (
-                          <ActivityItem
-                            key={activity.id}
-                            icon={<ClockIcon style={{ height: 20, width: 20, color: '#6D28D9' }} />}
-                            text={activity.text}
-                            time={formatDate(activity.createdAt)}
-                          />
-                        ))
-                        : <p>ยังไม่มีกิจกรรมล่าสุด</p>}
-                    </div>
-                  </div>
+                 
                 </div>
               )}
 

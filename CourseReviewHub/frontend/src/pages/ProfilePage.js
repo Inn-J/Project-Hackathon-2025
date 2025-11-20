@@ -43,6 +43,8 @@ function ProfileHeader({ currentUser, reviews }) {
     reviews.length > 0
       ? (reviews.reduce((sum, r) => sum + (r.rating_satisfaction || 0), 0) / reviews.length).toFixed(1)
       : '0';
+      const isInstructor = userRole === 'INSTRUCTOR' || userRole === 'instructor';
+
 
   return (
     <>
@@ -58,7 +60,7 @@ function ProfileHeader({ currentUser, reviews }) {
             <p className="profile-meta">สิทธิ์ผู้ใช้: {userRole}</p>
           </div>
         </div>
-        <div className="profile-stats-grid">
+        {!isInstructor && (<div className="profile-stats-grid">
           <div className="profile-stat-box">
             <div className="stat-number">{reviewCount}</div>
             <div className="stat-label">คำแนะนำ</div>
@@ -75,7 +77,7 @@ function ProfileHeader({ currentUser, reviews }) {
             <div className="stat-number">{averageRating}</div>
             <div className="stat-label">คะแนนเฉลี่ย</div>
           </div>
-        </div>
+        </div>)}
       </div>
     </>
   );
